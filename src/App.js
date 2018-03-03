@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import './css/App.css';
+
+import LMap from './Map';
 
 class App extends Component {
   render() {
@@ -20,8 +21,8 @@ class App extends Component {
             <a href="#" className="home">User</a>
           </nav>
         </div>
-        <div className="ch-content">
-           Some content.
+        <div className="ch-map">
+           <LMap />
         </div>
       </div>
     );
