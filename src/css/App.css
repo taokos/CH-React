@@ -8,6 +8,10 @@
   margin-left: 60px;
 }
 
+.leaflet-top {
+  top: 80px;
+}
+
 .ch-header {
   background-color: #222;
   height: 50px;
