@@ -1,24 +1,54 @@
-.App {
-  text-align: center;
+.ch {
+  padding-left: 50px;
 }
-
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
-}
-
-.App-header {
+.ch-header {
   background-color: #222;
-  height: 150px;
-  padding: 20px;
+  height: 50px;
+  padding: 60px 20px 20px 20px;
   color: white;
 }
+.ch-menu {
+  padding: 5px;
+  background-color: #3d517b;
+  display: inline-block;
+  height: 100%;
+  width: 60px;
+  position: fixed;
+  left: 0;
+}
 
-.App-title {
+.ch-menu a {
+  color: #ffffff;
+  display: block;
+  height: 30px;
+}
+
+.ch-city-logo {
+  display: block;
+  width: 45px;
+  height: 45px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  line-height: 50px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.ch-content {
+  padding: 20px;
+}
+
+.ch-bottom-menu {
+  position: absolute;
+  bottom: 80px;
+}
+
+
+.ch-title {
   font-size: 1.5em;
 }
 
-.App-intro {
+.ch-intro {
   font-size: large;
 }
 
