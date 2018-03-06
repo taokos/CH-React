@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import {BrowserRouter, Route} from "react-router-dom"
 
 import '../css/App.css';
@@ -21,4 +21,4 @@ class App extends React.Component {
   }
 }
 
- export default App;
+export default App;

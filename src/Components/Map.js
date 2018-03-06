@@ -18,7 +18,6 @@ import '../css/leaflet.css';
 
 
 const center = [25.64837124674059, -80.712685]
-const { BaseLayer, Overlay } = LayersControl
 
 const DEFAULT_VIEWPORT = {
   center: center,

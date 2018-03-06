@@ -1,0 +1,25 @@
+{
+  "land_use": {
+    "group": "test 1",
+    "document": "6",
+    "layer_type": "land_use",
+    "layers": [
+      {
+        "layer_title": "111",
+        "layer_id": "111"
+      },
+      {
+        "layer_title": "222",
+        "layer_id": "222"
+      },
+      {
+        "layer_title": "333",
+        "layer_id": "333"
+      },
+      {
+        "layer_title": "444",
+        "layer_id": "444"
+      }
+    ]
+  }
+}
