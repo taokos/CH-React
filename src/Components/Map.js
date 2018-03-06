@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { render } from 'react-dom'
 import LLayers from './Layers'
 import {
   Circle,
@@ -54,15 +53,17 @@ class LMap extends Component {
   };
   render() {
     return (
-      <Map
-        onClick={this.onClickReset}
-        onViewportChanged={this.onViewportChanged}
-        viewport={this.state.viewport}>
-        <TileLayer
-          url="https://{s}.tiles.mapbox.com/v3/inhabitmiami.l269hdof/{z}/{x}/{y}.png"
-        />
-        <LLayers />
-      </Map>
+      <div className="ch-map">
+        <Map
+          onClick={this.onClickReset}
+          onViewportChanged={this.onViewportChanged}
+          viewport={this.state.viewport}>
+          <TileLayer
+            url="https://{s}.tiles.mapbox.com/v3/inhabitmiami.l269hdof/{z}/{x}/{y}.png"
+          />
+          <LLayers />
+        </Map>
+      </div>
     )
   }
 }
