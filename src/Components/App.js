@@ -1,20 +1,24 @@
 import React, { Component } from 'react';
+import {BrowserRouter, Route} from "react-router-dom"
+
 import '../css/App.css';
 
 import LMap from './Map';
+import Doc from './Doc';
 import LeftMenu from './LeftMenu';
 
-class App extends Component {
+class App extends React.Component {
   render() {
     return (
-      <div className="ch">
-        <LeftMenu />
-        <div className="ch-map">
-           <LMap />
+      <BrowserRouter>
+        <div  className="ch">
+          <LeftMenu />
+          <Route path="/map" component={LMap}/>
+          <Route path="/us" component={Doc}/>
         </div>
-      </div>
-    );
+      </BrowserRouter>
+    )
   }
 }
 
-export default App;
+ export default App;

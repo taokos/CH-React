@@ -25,7 +25,6 @@ class LLayers extends Component {
  
   render() {
     const { layers } = this.state;
-    console.log(this.state.layers)
     return (
       <LayersControl position="topleft">
         <BaseLayer checked name="Streets">
