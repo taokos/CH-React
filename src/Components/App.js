@@ -6,6 +6,7 @@ import '../css/App.css';
 import LMap from './Map';
 import Doc from './Doc';
 import LeftMenu from './LeftMenu';
+import SearchResults from './SearchResults';
 
 class App extends React.Component {
   render() {
@@ -13,8 +14,9 @@ class App extends React.Component {
       <BrowserRouter>
         <div  className="ch">
           <LeftMenu />
-          <Route path="/map" component={LMap}/>
-          <Route path="/us" component={Doc}/>
+          <Route path="/map/us/:p1/:p2" component={LMap}/>
+          <Route path="/us/:p1/:p2" component={Doc}/>
+          <Route path="/us/:p1/:p2/search" component={SearchResults}/>
         </div>
       </BrowserRouter>
     )
