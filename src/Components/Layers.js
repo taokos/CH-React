@@ -1,24 +1,17 @@
 import React, { Component } from 'react';
 import {
-  Circle,
-  CircleMarker,
-  Map,
-  Marker,
-  Polygon,
-  Polyline,
   FeatureGroup,
-  LayerGroup,
   LayersControl,
   Popup,
-  Rectangle,
   GeoJSON,
   TileLayer,
 } from 'react-leaflet'
 import api_layers from '../data.json';
 
+// Temporary solution for the ST1.
 const API = 'https://st1-api.gridics.com/api/_map_tile_layers?token=zmk6RrsXXbrw0o8j0fqA3g6LuKP207I1';
-const LAPI = 'https://local-codehub.gridics.com/api/v1/codehub_layers/6?_format=json';
-const MapShape = 'https://fl-api.gridics.com/fast-ajax/map_shape?map=';
+const LAPI = 'https://st1-codehub.gridics.com/api/v1/codehub_layers/6?_format=json';
+const MapShape = 'https://st1-api.gridics.com/fast-ajax/map_shape?map=';
 
 const { BaseLayer, Overlay } = LayersControl;
 
@@ -27,7 +20,7 @@ class LLayers extends Component {
     super(props);
   
     this.createGeoJsonObject = this.createGeoJsonObject.bind(this);
-  //  this.appSetShape = this.appSetShape.bind(this);
+
 
     this.state = {
       layers: [],
@@ -40,13 +33,13 @@ class LLayers extends Component {
     fetch(API)
       .then(results => results.json())
       .then(data => this.setState({layers: data}));
-    // fetch(LAPI)
-    //   .then(lresults => lresults.json())
-    //   .then(ldata => this.setState({ api_layers: ldata}))
+    fetch(LAPI)
+      .then(lresults => lresults.json())
+      .then(ldata => this.setState({ api_layers: ldata}))
     Object.keys(api_layers).map(group => {
       return (
         api_layers[group].layers.map((layer, i) => {
-          const apiUrl = MapShape + api_layers[group].layer_type + '&' + api_layers[group].layer_type + '=' + layer.layer_id;
+          const apiUrl = MapShape + api_layers[group].layer_type + '&overlay=1&' + api_layers[group].layer_type + '=' + layer.layer_id;
           fetch(apiUrl)
             .then(results => results.json())
             .then(data => this.createGeoJsonObject(data, i));
@@ -111,14 +104,28 @@ class LLayers extends Component {
           </Overlay>
         )}
         {Object.keys(api_layers).map(group => {
+          const colors = [
+            "#db4c4c",
+            "#4c70db",
+            "#dbb74c",
+            "#00bf70",
+            "#ff1f62",
+            "#4caaff",
+            "#934cdb",
+            "#93db4c",
+            "#db4cb7"
+          ];
           return (
             api_layers[group].layers.map((layer, i) => {
-              console.log(this.constMult);
               if (typeof shape[i] !== 'undefined') {
-                console.log(shape)
                 return (
                   <Overlay key={i} name={layer.layer_title}>
-                    <FeatureGroup color="purple">
+                    <FeatureGroup
+                      color={colors[i]}
+                      weight={2}
+                      fillOpacity={0.15}
+                      opacity={0.7}
+                    >
                       <Popup>
                         <span>Layer Title layer.layer_title</span>
                       </Popup>

@@ -1,17 +1,7 @@
 import React, { Component } from 'react';
 import LLayers from './Layers'
 import {
-  Circle,
-  CircleMarker,
   Map,
-  Marker,
-  Polygon,
-  Polyline,
-  FeatureGroup,
-  LayerGroup,
-  LayersControl,
-  Popup,
-  Rectangle,
   TileLayer,
 } from 'react-leaflet'
 import '../css/leaflet.css';
