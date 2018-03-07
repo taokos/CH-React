@@ -1,0 +1,25 @@
+{
+  "land_use": {
+    "group": "test 1",
+    "document": "6",
+    "layer_type": "land_use",
+    "layers": [
+      {
+        "layer_title": "BUSINESS AND OFFICE",
+        "layer_id": "2054035"
+      },
+      {
+        "layer_title": "ENVIRONMENTAL PROTECTION",
+        "layer_id": "2054047"
+      },
+      {
+        "layer_title": "PARKS AND RECREATION",
+        "layer_id": "2054037"
+      },
+      {
+        "layer_title": "PARKS AND RECREATION",
+        "layer_id": "2054037"
+      }
+    ]
+  }
+}

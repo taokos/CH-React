@@ -1,24 +1,13 @@
 import React, { Component } from 'react';
 import LLayers from './Layers'
 import {
-  Circle,
-  CircleMarker,
   Map,
-  Marker,
-  Polygon,
-  Polyline,
-  FeatureGroup,
-  LayerGroup,
-  LayersControl,
-  Popup,
-  Rectangle,
   TileLayer,
 } from 'react-leaflet'
 import '../css/leaflet.css';
 
 
 const center = [25.64837124674059, -80.712685]
-const { BaseLayer, Overlay } = LayersControl
 
 const DEFAULT_VIEWPORT = {
   center: center,
