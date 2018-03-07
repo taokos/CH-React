@@ -58,17 +58,16 @@ class LLayers extends Component {
   createGeoJsonObject(data, i) {
     const shape = this.state.shape;
     if (data.overlay[0]) {
-       shape[i] = data.overlay[0] ? data.overlay[0].coordinates : [];
-      // {
-      //   'type': 'FeatureCollection',
-      //   'features': [{
-      //     'type': 'Feature',
-      //     'geometry': {
-      //       'type': data.overlay[0] ? data.overlay[0].type : '',
-      //       'coordinates': data.overlay[0] ? data.overlay[0].coordinates : ''
-      //     }
-      //   }]
-      // };
+        shape[i] = {
+        'type': 'FeatureCollection',
+        'features': [{
+          'type': 'Feature',
+          'geometry': {
+            'type': data.overlay[0] ? data.overlay[0].type : '',
+            'coordinates': data.overlay[0] ? data.overlay[0].coordinates : ''
+          }
+        }]
+      };
       this.setState({
         shape: shape
       })
@@ -115,17 +114,17 @@ class LLayers extends Component {
           return (
             api_layers[group].layers.map((layer, i) => {
               console.log(this.constMult);
-              if (typeof shape['0'] != 'undefined') {
+              if (typeof shape[i] !== 'undefined') {
+                console.log(shape)
                 return (
                   <Overlay key={i} name={layer.layer_title}>
                     <FeatureGroup color="purple">
                       <Popup>
                         <span>Layer Title layer.layer_title</span>
                       </Popup>
-                      <Polygon  positions={shape['0']}/>
-                      <CircleMarker center={[-80.429345626102, 25.234841595927]} radius={20} color='red'/>
-                      <Circle center={[25.64837124674059, -80.712685]} radius={2000} />
-                      <Rectangle bounds={[[25.64837124674059, -80.712685],[-80.429345626102, 25.234841595927]]}/>
+                      <GeoJSON
+                        key={i}
+                        data={shape[i]} />
                     </FeatureGroup>
                   </Overlay>
                 )
