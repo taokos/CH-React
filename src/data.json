@@ -5,20 +5,20 @@
     "layer_type": "land_use",
     "layers": [
       {
-        "layer_title": "111",
-        "layer_id": "111"
+        "layer_title": "BUSINESS AND OFFICE",
+        "layer_id": "2054035"
       },
       {
-        "layer_title": "222",
-        "layer_id": "222"
+        "layer_title": "ENVIRONMENTAL PROTECTION",
+        "layer_id": "2054047"
       },
       {
-        "layer_title": "333",
-        "layer_id": "333"
+        "layer_title": "PARKS AND RECREATION",
+        "layer_id": "2054037"
       },
       {
-        "layer_title": "444",
-        "layer_id": "444"
+        "layer_title": "PARKS AND RECREATION",
+        "layer_id": "2054037"
       }
     ]
   }

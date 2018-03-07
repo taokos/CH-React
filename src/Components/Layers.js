@@ -11,25 +11,28 @@ import {
   LayersControl,
   Popup,
   Rectangle,
+  GeoJSON,
   TileLayer,
 } from 'react-leaflet'
 import api_layers from '../data.json';
 
 const API = 'https://st1-api.gridics.com/api/_map_tile_layers?token=zmk6RrsXXbrw0o8j0fqA3g6LuKP207I1';
 const LAPI = 'https://local-codehub.gridics.com/api/v1/codehub_layers/6?_format=json';
+const MapShape = 'https://fl-api.gridics.com/fast-ajax/map_shape?map=';
 
 const { BaseLayer, Overlay } = LayersControl;
 
-console.log(api_layers)
-
 class LLayers extends Component {
-  
   constructor(props) {
     super(props);
+  
+    this.createGeoJsonObject = this.createGeoJsonObject.bind(this);
+  //  this.appSetShape = this.appSetShape.bind(this);
 
     this.state = {
       layers: [],
       api_layers: [],
+      shape: {},
     };
   }
   
@@ -40,11 +43,52 @@ class LLayers extends Component {
     // fetch(LAPI)
     //   .then(lresults => lresults.json())
     //   .then(ldata => this.setState({ api_layers: ldata}))
+    Object.keys(api_layers).map(group => {
+      return (
+        api_layers[group].layers.map((layer, i) => {
+          const apiUrl = MapShape + api_layers[group].layer_type + '&' + api_layers[group].layer_type + '=' + layer.layer_id;
+          fetch(apiUrl)
+            .then(results => results.json())
+            .then(data => this.createGeoJsonObject(data, i));
+        })
+      )
+    });
   }
   
+  createGeoJsonObject(data, i) {
+    const shape = this.state.shape;
+    if (data.overlay[0]) {
+       shape[i] = data.overlay[0] ? data.overlay[0].coordinates : [];
+      // {
+      //   'type': 'FeatureCollection',
+      //   'features': [{
+      //     'type': 'Feature',
+      //     'geometry': {
+      //       'type': data.overlay[0] ? data.overlay[0].type : '',
+      //       'coordinates': data.overlay[0] ? data.overlay[0].coordinates : ''
+      //     }
+      //   }]
+      // };
+      this.setState({
+        shape: shape
+      })
+    }
+  }
+  
+  onEachFeature = (feature, layer) => {
+    layer.on({
+      click: this.clickToFeature.bind(this)
+    });
+  };
+  
+  clickToFeature = (e) => {
+    const layer = e.target;
+  };
+  
+ 
   render() {
-    const {layers} = this.state;
-    console.log(api_layers);
+    const { layers } = this.state;
+    const { shape } = this.state;
     return (
       <LayersControl position="topleft">
         <BaseLayer checked name="Streets">
@@ -69,16 +113,24 @@ class LLayers extends Component {
         )}
         {Object.keys(api_layers).map(group => {
           return (
-            api_layers[group].layers.map(layer =>
-              <Overlay key={layer} name={layer.layer_title}>
-                <FeatureGroup color="purple">
-                  <Popup>
-                    <span>Popup in FeatureGroup</span>
-                  </Popup>
-                  <Circle center={[51.51, -0.06]} radius={200} />
-                </FeatureGroup>
-              </Overlay>
-            )
+            api_layers[group].layers.map((layer, i) => {
+              console.log(this.constMult);
+              if (typeof shape['0'] != 'undefined') {
+                return (
+                  <Overlay key={i} name={layer.layer_title}>
+                    <FeatureGroup color="purple">
+                      <Popup>
+                        <span>Layer Title layer.layer_title</span>
+                      </Popup>
+                      <Polygon  positions={shape['0']}/>
+                      <CircleMarker center={[-80.429345626102, 25.234841595927]} radius={20} color='red'/>
+                      <Circle center={[25.64837124674059, -80.712685]} radius={2000} />
+                      <Rectangle bounds={[[25.64837124674059, -80.712685],[-80.429345626102, 25.234841595927]]}/>
+                    </FeatureGroup>
+                  </Overlay>
+                )
+              }
+            })
           )}
         )}
       </LayersControl>
