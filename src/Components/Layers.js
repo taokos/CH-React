@@ -1,82 +1,62 @@
-import React, {Children, cloneElement, Component} from 'react';
 import L from 'leaflet';
+import {GroupedLayers} from 'leaflet-groupedlayercontrol';
 
 // Temporary solution for the ST1.
 import api_layers from '../data.json';
+import LoadGeoJSON from "./geoJSONLayer";
 
-const API = 'https://st1-api.gridics.com/api/_map_tile_layers?token=zmk6RrsXXbrw0o8j0fqA3g6LuKP207I1';
-const LAPI = 'https://st1-codehub.gridics.com/api/v1/codehub_layers/6?_format=json';
-const MapShape = 'https://fl-api.gridics.com/fast-ajax/map_shape?map=';
+const MapShape = 'https://fl-api.gridics.com/fast-ajax/map_shape?map=land_use&overlay=1&';
 
-
-// class LLayers extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.createGeoJsonObject = this.createGeoJsonObject.bind(this);
-//     // this.fLayers = this.fLayers.bind(this);
-//     this.state = {
-      const layers = [];
-      // api_layers = [],
-      let shape = {};
-//     };
-//   }
-
-    fetch(API)
-      .then(results => results.json())
-      .then(data => setTo(data, layers));
-    // fetch(LAPI)
-    //   .then(lresults => lresults.json())
-    //   .then(ldata => layers[ldata]);
-    Object.keys(api_layers).map(group => {
-      return (
-        api_layers[group].layers.map((layer, i) => {
-          const apiUrl = MapShape + api_layers[group].layer_type + '&overlay=1&' + api_layers[group].layer_type + '=' + layer.layer_id;
-          fetch(apiUrl)
-            .then(results => results.json())
-            .then(data => createGeoJsonObject(data, i));
-        })
-      )
-    });
-
-    // {Object.keys(layers).map((layer, i ) =>
-    //   layers[layer].title
-    //       attribution={layers[layer].options.attribution}
-    //       url={'https:' + layers[layer].options.urlTemplate}
-    // )}
+const colors = [
+  "#db4c4c",
+  "#93db4c",
+  "#4c70db",
+  "#00bf70",
+  "#ff1f62",
+  "#4caaff",
+  "#934cdb",
+  "#dbb74c",
+  "#db4cb7"
+],
+  tailLaers = [
+  {title:"Parcel Lines", urlTemplate:'//st1-tiles.gridics.com/property_records_parcel_lines/{z}/{x}/{y}.png'},
+  {title:"Future Land Use", urlTemplate:'//st1-tiles.gridics.com/land_use_future_land_use/{z}/{x}/{y}.png'},
+  {title:"Zoning Code", urlTemplate:'//st1-tiles.gridics.com/land_use_zoning_code/{z}/{x}/{y}.png'},
+  {title:"Zoning Overlay", urlTemplate:'//st1-tiles.gridics.com/land_use_zoning_overlay/{z}/{x}/{y}.png'},
+];
 
 
-  function createGeoJsonObject(data, i) {
-    const tShape = shape;
-    if (data.overlay[0]) {
-      tShape[i] = {
-        'type': 'FeatureCollection',
-        'features': [{
-          'type': 'Feature',
-          'geometry': {
-            'type': data.overlay[0] ? data.overlay[0].type : '',
-            'coordinates': data.overlay[0] ? data.overlay[0].coordinates : ''
-          }
-        }]
-      };
-      shape = tShape;
-    }
-  }
+let groupedOverlays = {
+  "Layers": {},
+  "Land Use": {},
+  "Place": {}
+};
 
-  console.log(shape, api_layers, layers);
+console.log(process.env);
 
-  const cities = new L.LayerGroup();
-  
-  const restaurants = new L.LayerGroup();
-  
-  // Overlay layers are grouped
-  const groupedOverlays = {
-    "Landmarks": {
-      "Cities": cities
-    },
-    "Points of Interest": {
-      "Restaurants": restaurants
-    }
-  };
-  
+tailLaers.map((layer) => {
+  groupedOverlays["Layers"][layer.title] = L.tileLayer(layer.urlTemplate, {attribution: ''});
+});
+
+// fetch(LAPI)
+//   .then(lresults => lresults.json())
+//   .then(ldata => layers[ldata]);
+
+
+Object.keys(api_layers).map(group => {
+  return (
+    api_layers[group].layers.map((layer, i) => {
+      const options = {color: colors[i % colors.length], weight: 2, fillOpacity: 0.15, opacity: 0.7};
+      const apiUrl = MapShape + api_layers[group].layer_type + '=' + layer.layer_id;
+      if (api_layers[group].layer_type === 'land_use') {
+        groupedOverlays["Land Use"][layer.layer_title] = LoadGeoJSON(apiUrl, options)
+      }
+      else {
+        groupedOverlays["Place"][layer.layer_title] = LoadGeoJSON(apiUrl, options)
+      }
+    })
+  )
+});
+
 
 export default groupedOverlays;
