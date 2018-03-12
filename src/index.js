@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './css/index.css';
 import App from './Components/App';
-import './css/leaflet.css';
 import L from 'leaflet'
 
 import registerServiceWorker from './registerServiceWorker';
