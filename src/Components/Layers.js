@@ -5,7 +5,7 @@ import LayersCheckbox from './Elements/LayersCheckbox';
 
 // Temporary solution for the ST1.
 import api_layers from '../data.json';
-import LoadGeoJSON from "./geoJSONLayer";
+import LoadGeoJSON from "./Elements/geoJSONLayer";
 
 const MapShape = 'https://fl-api.gridics.com/fast-ajax/map_shape?map=land_use&overlay=1&';
 
@@ -108,7 +108,7 @@ class BaseLayers extends Component {
       <div className="radios">
         {Object.keys(this.baseLayers).map(function(layer, index) {
           return (
-            <div className={"radio " + layer}>
+            <div key={'base-layers-' + index} className={"radio " + layer}>
               <label>
                 <input id={"base-layer-" + layer}
                        name="base-layers"
@@ -140,7 +140,7 @@ class GroupLayers extends Component {
         <div className="checkboxes">
           {Object.keys(layers).map(function (name, i) {
             return(
-              <LayersCheckbox map={map} id={name} layer={layers[name]} reset={reset}>
+              <LayersCheckbox  key={'layers-checkbox-' + i} map={map} id={name} layer={layers[name]} reset={reset}>
                 {name}
               </LayersCheckbox>
             );
@@ -179,7 +179,7 @@ class Layers extends Component {
         <BaseLayers map={map} />
         {Object.keys(groupedOverlays).map(function (layer, i) {
           return (
-            <GroupLayers map={map} name={layer} layers={groupedOverlays[layer]} reset={reset} />
+            <GroupLayers key={'group-layers-' + i} map={map} name={layer} layers={groupedOverlays[layer]} reset={reset} />
           );
         })};
         <button className="reset" onClick={this.clickReset.bind(this)}>Reset</button>

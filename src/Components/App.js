@@ -7,7 +7,7 @@ import LeftMenu from './LeftMenu';
 import SearchResults from './SearchResults';
 
 // For development use only.
-if (process.env.NODE_ENV == 'development') {
+if (process.env.NODE_ENV === 'development') {
   require('../gridics-theme-link/css/gridics.css');
 }
 
