@@ -32,8 +32,6 @@ let groupedOverlays = {
   "Place": {}
 };
 
-console.log(process.env);
-
 tailLaers.map((layer) => {
   groupedOverlays["Layers"][layer.title] = L.tileLayer(layer.urlTemplate, {attribution: ''});
 });
