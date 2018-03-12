@@ -8,6 +8,9 @@ class LeftMenu extends Component {
       if (pathname[1] === 'map') {
         pathname.splice(1, 1);
       }
+      if (pathname[4] === 'search') {
+        pathname.splice(4, 1);
+      }
       const doc = pathname.join('/');
       const map = '/map' + doc;
       return (
