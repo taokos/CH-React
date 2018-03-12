@@ -1,6 +1,6 @@
 {
   "land_use": {
-    "group": "test 1",
+    "group": "Land Use",
     "document": "6",
     "layer_type": "land_use",
     "layers": [
@@ -19,6 +19,29 @@
       {
         "layer_title": "PARKS AND RECREATION",
         "layer_id": "2054037"
+      }
+    ]
+  },
+  "place": {
+    "group": "Place",
+    "document": "6",
+    "layer_type": "place",
+    "layers": [
+      {
+        "layer_title": "Miami-Dade",
+        "layer_id": "2000354"
+      },
+      {
+        "layer_title": "Broward",
+        "layer_id": "2073517"
+      },
+      {
+        "layer_title": "Miami Dade Unincorporated",
+        "layer_id": "2876312"
+      },
+      {
+        "layer_title": "Duval",
+        "layer_id": "4740981"
       }
     ]
   }
