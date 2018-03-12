@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import SearchBox from './SearchBox'
+import SearchBox from './SearchBox';
 
 class Doc extends Component {
   render() {
@@ -7,7 +7,7 @@ class Doc extends Component {
       <div className="ch-doc">
         <SearchBox history={this.props.history} match={this.props.match}/>
       </div>
-    )
+    );
   }
 }
 

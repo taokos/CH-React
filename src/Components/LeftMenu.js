@@ -3,6 +3,23 @@ import createBrowserHistory from 'history/createBrowserHistory'
 const history = createBrowserHistory();
 
 class LeftMenu extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {isOn: false};
+
+    // This binding is necessary to make `this` work in the callback
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick(e) {
+    this.setState(prevState => ({
+      isOn: !prevState.isOn
+    }));
+    this.props.toggleLayers(e);
+
+  }
+
   render() {
       const pathname = history.location.pathname.split('/');
       if (pathname[1] === 'map') {
@@ -20,13 +37,23 @@ class LeftMenu extends Component {
           </section>
           <nav className="ch-top-menu">
             <a href={map} className="home">Home</a>
-            <a href={doc} className="home">CH</a>
-            <a href="/" className="home">Layers</a>
+            <a onClick={this.handleClick} href="/" className={"layers" + (this.state.isOn ? ' active' : '')}>Layers</a>
           </nav>
           <nav className="ch-bottom-menu">
-            <a href="/" className="home">Help</a>
-            <a href="/" className="home">Menu</a>
-            <a href="/" className="home">User</a>
+            <a href="/" className="help">Help</a>
+            <ul className="toggle-menu">
+              <li>
+                <a href="/" className="menu"></a>
+                <ul className="submenu">
+                  <li>
+                    <a href={doc} className="codehub">CH</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <a href="/" className="user">User</a>
+            <div className="menu">
+            </div>
           </nav>
         </div>
       );
