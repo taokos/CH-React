@@ -12,22 +12,29 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
     this._layers = {};
     if (apiUrl) {
       fetch(apiUrl)
-        .then(results => results.json())
+        .then(function (results) {
+          var contentType = results.headers.get("content-type");
+          if(contentType && contentType.includes("application/json")) {
+            return results.json();
+          }
+        })
         .then(data => this.createGeoJsonObject(data));
     }
   },
   createGeoJsonObject(data) {
-    const shape = {
-      'type': 'FeatureCollection',
-      'features': [{
-        'type': 'Feature',
-        'geometry': {
-          'type': data.overlay[0] ? data.overlay[0].type : '',
-          'coordinates': data.overlay[0] ? data.overlay[0].coordinates : ''
-        }
-      }]
-    };
-    this.addData(shape);
+    if (data) {
+      const shape = {
+        'type': 'FeatureCollection',
+        'features': [{
+          'type': 'Feature',
+          'geometry': {
+            'type': data.overlay[0] ? data.overlay[0].type : '',
+            'coordinates': data.overlay[0] ? data.overlay[0].coordinates : ''
+          }
+        }]
+      };
+      this.addData(shape);
+    }
   },
   addData: function (geojson) {
     var features = Util.isArray(geojson) ? geojson : geojson.features,
