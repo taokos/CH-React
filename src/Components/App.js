@@ -33,8 +33,8 @@ class App extends React.Component {
     return (
       <BrowserRouter>
         <div  className="ch">
-          <LeftMenu toggleLayers={this.toggleLayers} />
-          <Route path="/map/us/:p1/:p2" render={()=><LMap showLayers={showLayers}/>} />
+          <LeftMenu toggleLayers={this.toggleLayers} showLayers={this.state.showLayers} />
+          <Route path="/map/us/:p1/:p2" render={()=><LMap toggleLayers={this.toggleLayers} showLayers={showLayers}/>} />
           <Route path="/us/:p1/:p2" component={Doc}/>
           <Route path="/us/:p1/:p2/search" component={SearchResults}/>
         </div>

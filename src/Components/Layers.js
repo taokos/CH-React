@@ -58,75 +58,6 @@ Object.keys(api_layers).map(group => {
   )
 });
 
-class BaseLayers extends Component {
-  baseLayers = {
-    'streets': {
-      'name': 'Street View',
-      'url': 'https://{s}.tiles.mapbox.com/v3/inhabitmiami.l269hdof/{z}/{x}/{y}.png',
-      'options': {
-        'attribution': '©<a href=\'https://www.mapbox.com/about/maps/\'>Mapbox</a> © <a href=\'http://www.openstreetmap.org/copyright\'>OpenStreetMap</a> contributors',
-        'zIndex': -99
-      }
-    },
-    'satelite': {
-      'name': 'Satelite',
-      'url': 'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiaW5oYWJpdG1pYW1pIiwiYSI6IlVqbDFmYW8ifQ._WCxjKTHYFmq6bdIUeLwYA',
-      'options': {
-        'attribution': '<a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox</a> <a href="http://www.openstreetmap.org/about/" target="_blank">© OpenStreetMap</a> <a class="mapbox-improve-map" href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a> <a href="https://www.digitalglobe.com/" target="_blank">© DigitalGlobe</a>',
-        'zIndex': -99
-      }
-    }
-  };
-
-  constructor(props) {
-    super(props);
-    const defaultLayer = new L.TileLayer(this.baseLayers['streets'].url, this.baseLayers['streets'].options);
-    this.state = {
-      checked: 'streets',
-      baseLayer: defaultLayer.addTo(props.map)
-    };
-
-    // This binding is necessary to make `this` work in the callback
-    this.handleChange = this.handleChange.bind(this);
-  }
-
-  handleChange(e) {
-    const checked = e.target.value;
-    if (checked !== this.state.checked) {
-      const defaultLayer = new L.TileLayer(this.baseLayers[checked].url, this.baseLayers[checked].options)
-      this.state.baseLayer.remove();
-      this.setState({
-        checked: checked,
-        baseLayer: defaultLayer.addTo(this.props.map)
-      });
-    }
-  }
-
-  render() {
-    const _this = this;
-    return (
-      <div className="radios">
-        {Object.keys(this.baseLayers).map(function(layer, index) {
-          return (
-            <div className={"radio " + layer}>
-              <label>
-                <input id={"base-layer-" + layer}
-                       name="base-layers"
-                       type="radio"
-                       onChange={_this.handleChange}
-                       value={layer}
-                       {...(layer === _this.state.checked) && {'checked': 'checked'}}
-                />
-                <span>{_this.baseLayers[layer].name}</span>
-              </label>
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-}
-
 class GroupLayers extends Component {
   render() {
     const layers = this.props.layers;
@@ -175,17 +106,29 @@ class Layers extends Component {
     const map = this.props.map;
     const hideClass = this.props.showLayers ? '' : ' hide';
     return (
-      <div className={"controls" + hideClass}>
-        <BaseLayers map={map} />
-        {Object.keys(groupedOverlays).map(function (layer, i) {
-          return (
-            <GroupLayers map={map} name={layer} layers={groupedOverlays[layer]} reset={reset} />
-          );
-        })};
-        <button className="reset" onClick={this.clickReset.bind(this)}>Reset</button>
+      <div className={"layers" + hideClass}>
+        <div className="layers-wrapper">
+          <div className="title">
+            <h3>Layers</h3>
+            <a href="#" className="close" onClick={this.props.toggleLayers}>
+              <i className="icon-b icon-b-close"></i>
+            </a>
+          </div>
+          <div className="overlays">
+            {/*<BaseLayers map={map} />*/}
+            {Object.keys(groupedOverlays).map(function (layer, i) {
+              return (
+                <GroupLayers map={map} name={layer} layers={groupedOverlays[layer]} reset={reset} />
+              );
+            })}
+          </div>
+        <div className="form-actions">
+          <button className="reset form-submit" onClick={this.clickReset.bind(this)}>Reset</button>
+        </div>
+        </div>
       </div>
     );
   }
 }
-// export {Layers, groupedOverlays};
+
 export default Layers;
