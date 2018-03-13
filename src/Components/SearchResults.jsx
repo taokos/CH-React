@@ -8,44 +8,48 @@ class SearchResults extends Component {
 
     this.state = {
       matchedResults: [],
-      pieces: []
+      pieces: [],
     };
   }
 
-  componentDidMount() {
-    const requestUrl = API
-      + this.props.history.location.search
-      + '&alias=/us/'
-      + this.props.match.params.p1
-      + '/'
-      + this.props.match.params.p2
-      + '&_format=json&l=10';
-    fetch(requestUrl)
-      .then(results => results.json())
-      .then(data => this.setState({ matchedResults: data}))
-      .then(data => this.getParents())
+  getResults() {
+    if (this.props.searching) {
+      const requestUrl = API
+        + '?search=' + this.props.searching
+        + '&alias=/us/'
+        + this.props.match.params.p1
+        + '/'
+        + this.props.match.params.p2
+        + '&_format=json&l=10';
+      this.props.searching = '';
+      fetch(requestUrl)
+        .then(results => results.json())
+        .then(data => this.setState({matchedResults: data}))
+        .then(data => this.getParents());
+    }
   }
 
   getParents() {
-    let breadcrumbs = [];
-    let pieces = [];
-    this.state.matchedResults.items.map((result) =>
-    {pieces = result.doc.path.split('/').filter(item => item !== '' && item !== result.doc.id);
-    breadcrumbs += ',' + pieces;
-    });
+    if (this.state.matchedResults.items.length > 0) {
+      let breadcrumbs = [];
+      let pieces = [];
+      this.state.matchedResults.items.map((result) => {
+        pieces = result.doc.path.split('/').filter(item => item !== '' && item !== result.doc.id);
+        breadcrumbs += ',' + pieces;
+      });
 
-    const request = API
-      + this.props.history.location.search
-      + '&alias=/us/'
-      + this.props.match.params.p1
-      + '/'
-      + this.props.match.params.p2
-      + '&_format=json&ids='
-      + breadcrumbs;
+      const request = API
+        + '?alias=/us/'
+        + this.props.match.params.p1
+        + '/'
+        + this.props.match.params.p2
+        + '&_format=json&ids='
+        + breadcrumbs;
 
-    fetch(request)
-      .then(results => results.json())
-      .then(data => this.setState({ pieces: data}));
+      fetch(request)
+        .then(results => results.json())
+        .then(data => this.setState({pieces: data}));
+    }
   }
 
   prepareResults(data) {
@@ -87,14 +91,24 @@ class SearchResults extends Component {
   }
 
   render() {
-    const { matchedResults } = this.state;
-    const urlParams = new URLSearchParams(this.props.history.location.search);
+    // Just a check to prevent infinity loop of requests.
+    this.getResults();
+
+    const {matchedResults} = this.state;
+    const maybePluralize = (count, noun, suffix = 's') =>
+      `${count} ${noun}${count !== 1 ? suffix : ''}`;
 
     return (
-      <div className="ch-results">
-        <div className="ch-searching">Search Results for “{urlParams.get('search')}“</div>
-        <div className="ch-total-results">That search returned {matchedResults.total} results.</div>
-        {this.prepareResults(matchedResults)}
+      <div key={this.props.lastSearch} id="view-details">
+        <div className="ch-results">
+          <div className="ch-searching">Search Results for
+            “{this.props.lastSearch}“
+          </div>
+          <div className="ch-total-results">That search
+            returned {maybePluralize(matchedResults.total, 'result')}.
+          </div>
+          {this.prepareResults(matchedResults)}
+        </div>
       </div>
     );
   }
