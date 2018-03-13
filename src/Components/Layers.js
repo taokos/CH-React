@@ -7,8 +7,6 @@ import LayersCheckbox from './Elements/LayersCheckbox';
 import api_layers from '../data.json';
 import LoadGeoJSON from "./Elements/geoJSONLayer";
 
-const MapShape = 'https://fl-api.gridics.com/fast-ajax/map_shape?map=land_use&overlay=1&';
-
 const colors = [
   "#db4c4c",
   "#93db4c",
@@ -47,7 +45,7 @@ Object.keys(api_layers).map(group => {
   return (
     api_layers[group].layers.map((layer, i) => {
       const options = {color: colors[i % colors.length], weight: 2, fillOpacity: 0.15, opacity: 0.7};
-      const apiUrl = MapShape + api_layers[group].layer_type + '=' + layer.layer_id;
+      const apiUrl = process.env.REACT_APP_MAP_SHAPE_URL + api_layers[group].layer_type + '=' + layer.layer_id;
       if (api_layers[group].layer_type === 'land_use') {
         groupedOverlays["Land Use"][layer.layer_title] = LoadGeoJSON(apiUrl, options)
       }

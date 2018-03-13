@@ -1,13 +1,34 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import L from 'leaflet';
 import Layers from './Layers.js';
-import mapPopup from "./Elements/mapPopup.js";
+import MapPopup from "./Elements/mapPopup.js";
+
+const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=10&offset=0&ignoreStatus=&indent=&';
 
 const center = [26.1224, -80.1373];
 const StateBounds = new L.LatLngBounds(
   new L.LatLng(26.2142, -80.0570),
   new L.LatLng(26.0743, -80.2333)
 );
+const fields =[
+  ['title', ''],
+  ['folioNumber', 'Folio'],
+  ['address', 'Address'],
+  ['owners', 'Owner(s)'],
+  ['owner_mailing_address','Owner Address'],
+  ['legalDesc', 'Property Description'],
+  ['landUseDorCode','Detailed Use'],
+  ['yearBuilt', 'Year Built of Property'],
+  ['buildings','Number of Buildings'],
+  ['bedrooms','Bed Count'],
+  ['baths','Bath Count'],
+  ['livingUnits', 'Number of Units'],
+  ['propertySize', 'Property Sq Ft'],
+  ['abuttingProperties','Neighboring Properties'],
+  ['streetName', 'Places - Street(s)'],
+  ['building:real','Places - Related Building / Condominium Name']
+];
 
 class LMap extends React.Component {
 
@@ -38,10 +59,14 @@ class LMap extends React.Component {
     map.setMaxBounds(StateBounds);
     map.options.minZoom = map.getBoundsZoom(StateBounds);
 
-    let mapData = {},
+    let popupData = {
+        fields: {},
+        data:{}
+      },
     layerExist  = false;
 
     map.on('click', function(e) {
+      // Add property layer and open popup with property info.
       function propertyLayer(map, data) {
         if (data.data.items[0]) {
           const shape = {
@@ -54,10 +79,9 @@ class LMap extends React.Component {
               }
             }]
           };
+          const newLeayer =  L.geoJson(shape, {type:'property-layer', key:'property-layer-' + data.data.items[0].id});
 
-         const newLeayer =  L.geoJson(shape, {type:'property-layer', key:'property-layer-' + data.data.items[0].id});
-
-
+          // Remove current property layer if needed.
           map.eachLayer(function (layer) {
             if ('options' in layer && 'options' in newLeayer &&  layer.options.type ===  'property-layer') {
               if (layer.options.key !== newLeayer.options.key) {
@@ -65,32 +89,59 @@ class LMap extends React.Component {
               }
               else {
                 layerExist = true;
+                renderPopup(data);
               }
             }
           });
-          if (!layerExist) {
-            console.log(data);
-            mapData['title'] = data.address;
-            mapData['body'] = <div>Propety info</div>;
-            mapData['footer'] = <button>Sign Up</button>;
+
+          // Remove popup.
+          function hide() {
+            map.eachLayer(function (layer) {
+              if ('options' in layer && 'options' in newLeayer &&  layer.options.type ===  'property-layer') {
+                map.removeLayer(layer);
+              }
+            });
+            ReactDOM.render('', document.getElementById('popupWrapper'));
+          }
+
+          // Render popup.
+          function renderPopup(data) {
+            popupData['data'] = data;
+            popupData['fields'] = fields;
+
+            ReactDOM.render(<MapPopup
+              popupData={popupData}
+              onCloseClicked={() => hide()}
+            />, document.getElementById('popupWrapper'));
             newLeayer.addTo(map);
+          }
+
+          // If new layer was added update popup.
+          if (!layerExist) {
+            renderPopup(data);
           }
         }
       }
 
-      fetch('https://fl-api.gridics.com/api/property_record?token=zcJ6xtQbyiMQNfskLFmiPEDFocl1hheP&geometryFormat=geojson&rows=50&offset=0&ignoreStatus=&indent=&point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}')
+      let fieldsRequest = '';
+
+      fields.map(function(value, index) {
+        fieldsRequest += 'fields[]=' + value[0] + '&';
+      });
+
+      fetch(process.env.REACT_APP_PUBLIC_API + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
         .then(results => results.json())
         .then(data => propertyLayer(this, {data}))
+
     });
-    this.setState({mapData:mapData, layerExist:layerExist});
   }
 
   render() {
     return (
       <div className="wrapper">
         {(this.state.map) ? <Layers map={this.state.map} showLayers={this.props.showLayers} /> : ''}
-        {(!this.state.layerExist) ? <mapPopup mapData={this.state.mapData} /> : ''}
-        <div id="map" className="ch-map"></div>
+        <div id="popupWrapper"> </div>
+        <div id="map" className="ch-map"> </div>
       </div>
     );
   }
