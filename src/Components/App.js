@@ -4,10 +4,9 @@ import {BrowserRouter, Route} from "react-router-dom";
 import LMap from './Map';
 import Doc from './Doc';
 import LeftMenu from './LeftMenu';
-import SearchResults from './SearchResults';
 
 // For development use only.
-if (process.env.NODE_ENV == 'development') {
+if (process.env.NODE_ENV === 'development') {
   require('../gridics-theme-link/css/gridics.css');
 }
 
@@ -36,10 +35,9 @@ class App extends React.Component {
           <LeftMenu toggleLayers={this.toggleLayers} />
           <Route path="/map/us/:p1/:p2" render={()=><LMap showLayers={showLayers}/>} />
           <Route path="/us/:p1/:p2" component={Doc}/>
-          <Route path="/us/:p1/:p2/search" component={SearchResults}/>
         </div>
       </BrowserRouter>
-    )
+    );
   }
 }
 
