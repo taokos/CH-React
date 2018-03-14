@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import asyncLoading from 'react-async-loader';
 
 class StreetView extends React.Component {
 
@@ -10,21 +11,29 @@ class StreetView extends React.Component {
 
   initialize (canvas) {
     if (this.props.googleMaps && this.streetView == null) {
-      this.streetView = new this.props.googleMaps.StreetViewPanorama(
-        canvas,
-        this.props.streetViewPanoramaOptions
-      );
-
-      this.streetView.addListener('position_changed',() => {
-        if (this.props.onPositionChanged) {
-          this.props.onPositionChanged(this.streetView.getPosition());
+      const geocoder = new this.props.googleMaps.Geocoder(), thet = this;
+      let lat = null , lng = null;
+      // Found point by Address if posible.
+      geocoder.geocode( { 'address': this.props.address + ', ' + process.env.REACT_APP_ADDRESS}, function(results, status) {
+        if (results[0] && 'geometry' in results[0] && 'location' in results[0].geometry) {
+            lat = results[0].geometry.location.lat();
+            lng = results[0].geometry.location.lng();
+            thet.props.streetViewPanoramaOptions.position = {lat: lat, lng: lng};
         }
-      });
-
-      this.streetView.addListener('pov_changed',() => {
-        if (this.props.onPovChanged) {
-          this.props.onPovChanged(this.streetView.getPov());
-        }
+        thet.streetView = new thet.props.googleMaps.StreetViewPanorama(
+          canvas,
+          thet.props.streetViewPanoramaOptions
+        );
+        thet.streetView.addListener('position_changed',() => {
+          if (thet.props.onPositionChanged) {
+              thet.props.onPositionChanged(thet.streetView.getPosition());
+          }
+        });
+        thet.streetView.addListener('pov_changed',() => {
+          if (thet.props.onPovChanged) {
+            thet.props.onPovChanged(thet.streetView.getPov());
+          }
+        });
       });
     }
   }
@@ -61,7 +70,7 @@ if (typeof React.PropTypes !== 'undefined') {
 
   StreetView.defaultProps = {
     streetViewPanoramaOptions: {
-      position: {lat: 46.9171876, lng: 17.8951832},
+      position: {lat: 0, lng: 0},
       pov: {heading: 0, pitch: 0},
       zoom: 1
     }
@@ -79,8 +88,6 @@ function mapScriptsToProps (props) {
   };
 }
 
-export default StreetView;
-
-// export default typeof React.PropTypes !== 'undefined' ? asyncLoading(mapScriptsToProps)(StreetView) : StreetView;
+export default asyncLoading(mapScriptsToProps)(StreetView);
 
 

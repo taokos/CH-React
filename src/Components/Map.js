@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import L from 'leaflet';
 import Layers from './Layers.js';
-import MapPopup from "./Elements/mapPopup.js";
+import MapPopup from "./Elements/MapPopup.js";
 import BaseLayer from './Elements/BaseLayer.js';
-import MapSearch from './Elements/mapSearch.js';
+import MapSearch from './Elements/MapSearch.js';
 
 const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=10&offset=0&ignoreStatus=&indent=&';
 
@@ -115,6 +115,8 @@ class LMap extends React.Component {
         else if ('data' in data && 'items' in data.data && data.data.items[0] && 'gisData' in data.data.items[0] && 'geom' in data.data.items[0].gisData) {
           const lngLan = data.data.items[0].gisData.geom.coordinates[0][0];
           map.setView(new L.LatLng(lngLan[1], lngLan[0]), 17);
+          popupData['lng'] = lngLan[0];
+          popupData['lat'] = lngLan[1];
         }
         ReactDOM.render(<MapPopup
           popupData={popupData}

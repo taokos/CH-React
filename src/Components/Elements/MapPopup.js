@@ -1,5 +1,5 @@
 import React from 'react';
-import StreetView from './streetView.js';
+import StreetView from './StreetView.js';
 
 class MapPopup extends React.Component {
 
@@ -66,6 +66,7 @@ class MapPopup extends React.Component {
               streetViewPanoramaOptions={streetViewPanoramaOptions}
               onPositionChanged={position => this.setState({position: position})}
               onPovChanged={pov => this.setState({pov: pov})}
+              address={item.address}
             />
           </div>
           <div className={'modal-content'}>

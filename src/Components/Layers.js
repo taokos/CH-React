@@ -5,7 +5,7 @@ import LayersCheckbox from './Elements/LayersCheckbox';
 
 // Temporary solution for the ST1.
 import api_layers from '../data.json';
-import LoadGeoJSON from "./Elements/geoJSONLayer";
+import LoadGeoJSON from "./Elements/GeoJSONLayer";
 
 const colors = [
   "#db4c4c",
