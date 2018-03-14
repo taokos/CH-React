@@ -15,8 +15,8 @@ export default class LayersCheckbox extends Component {
 
   handleChange(e) {
     const newState = e.target.checked;
-    this.setState({isToggleOn: newState});
     this.switchCheckbox(newState);
+    this.props.onChange(this, this.props.id, newState);
   }
 
   switchCheckbox(newState) {
@@ -32,20 +32,17 @@ export default class LayersCheckbox extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.reset) {
-      this.setState({isToggleOn: false});
-      this.switchCheckbox(false);
-    }
+    this.switchCheckbox(nextProps.checked);
   }
 
   render() {
     return (
       <div className="checkbox">
         <label>
-          <input id={this.props.layer} type="checkbox" onChange={this.handleChange} checked={this.state.isToggleOn} className={"layers-group"} />
+          <input id={this.props.id} type="checkbox" onChange={this.handleChange} checked={this.props.checked} className={"layers-group"} />
           <span>{this.props.children}</span>
         </label>
       </div>
-    )
+    );
   }
 }

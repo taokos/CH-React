@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import createBrowserHistory from 'history/createBrowserHistory'
+import createBrowserHistory from 'history/createBrowserHistory';
+
 const history = createBrowserHistory();
 const siteUrl = process.env.REACT_APP_SETTINGS_URL;
 const userAPI = siteUrl + '/api/v1/sso-user?_format=json';
@@ -41,9 +42,14 @@ class LeftMenu extends Component {
 
   componentWillMount() {
     const dataUrl = siteUrl + this.doc + '?_format=json';
+    const that = this;
     fetch(dataUrl)
       .then(results => results.json())
-      .then(data => this.setState({pageData: data}));
+      .then(function (data) {
+        if (data && !data.message) {
+          that.setState({pageData: data});
+        }
+      });
   }
 
   constructor(props) {
