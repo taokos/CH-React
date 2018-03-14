@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import L from 'leaflet';
-import { render, unmountComponentAtNode } from 'react-dom';
+import { render } from 'react-dom';
 
 L.Control.BaseControl = L.Control.extend({
   options: {
