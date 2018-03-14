@@ -16,6 +16,7 @@ const StateBounds = new L.LatLngBounds(
   new L.LatLng(26.0743, -80.2333)
 );
 const fields =[
+  ['id', ''],
   ['title', ''],
   ['folioNumber', 'Folio'],
   ['address', 'Address'],
@@ -69,15 +70,13 @@ class LMap extends React.Component {
       function propertyLayer(map, data) {
         if (data.data.items[0]) {
           const shape = {
-            'type': 'FeatureCollection',
-            'features': [{
-              'type': 'Feature',
-              'geometry': {
-                'type': data.data.items[0].gisData.geom.type ? data.data.items[0].gisData.geom.type : 'Poligon',
-                'coordinates': data.data.items[0].gisData.geom.coordinates ? data.data.items[0].gisData.geom.coordinates : ''
-              }
-            }]
+            'type': 'Feature',
+            'geometry': {
+              'type': data.data.items[0].gisData.geom.type ? data.data.items[0].gisData.geom.type : 'Poligon',
+              'coordinates': data.data.items[0].gisData.geom.coordinates ? data.data.items[0].gisData.geom.coordinates : ''
+            }
           };
+          data
           const newLeayer =  L.geoJson(shape, {type:'property-layer', key:'property-layer-' + data.data.items[0].id});
 
           // Remove current property layer if needed.
@@ -112,12 +111,12 @@ class LMap extends React.Component {
               popupData={popupData}
               onCloseClicked={() => hide()}
             />, document.getElementById('popupWrapper'));
-            newLeayer.addTo(map);
           }
 
           // If new layer was added update popup.
           if (!layerExist) {
             renderPopup(data);
+            newLeayer.addTo(map);
           }
         }
       }
