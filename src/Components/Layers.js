@@ -5,9 +5,7 @@ import LayersCheckbox from './Elements/LayersCheckbox';
 
 // Temporary solution for the ST1.
 import api_layers from '../data.json';
-import LoadGeoJSON from "./geoJSONLayer";
-
-const MapShape = 'https://fl-api.gridics.com/fast-ajax/map_shape?map=land_use&overlay=1&';
+import LoadGeoJSON from "./Elements/geoJSONLayer";
 
 const colors = [
   "#db4c4c",
@@ -36,6 +34,7 @@ let groupedOverlays = {
 
 tailLaers.map((layer) => {
   groupedOverlays["Layers"][layer.title] = L.tileLayer(layer.urlTemplate, {attribution: ''});
+  return (groupedOverlays);
 });
 
 // fetch(LAPI)
@@ -47,13 +46,14 @@ Object.keys(api_layers).map(group => {
   return (
     api_layers[group].layers.map((layer, i) => {
       const options = {color: colors[i % colors.length], weight: 2, fillOpacity: 0.15, opacity: 0.7};
-      const apiUrl = MapShape + api_layers[group].layer_type + '=' + layer.layer_id;
+      const apiUrl = process.env.REACT_APP_MAP_SHAPE_URL + api_layers[group].layer_type + '=' + layer.layer_id;
       if (api_layers[group].layer_type === 'land_use') {
-        groupedOverlays["Land Use"][layer.layer_title] = LoadGeoJSON(apiUrl, options)
+        groupedOverlays["Land Use"][layer.layer_title] = LoadGeoJSON(apiUrl, options);
       }
       else {
-        groupedOverlays["Place"][layer.layer_title] = LoadGeoJSON(apiUrl, options)
+        groupedOverlays["Place"][layer.layer_title] = LoadGeoJSON(apiUrl, options);
       }
+      return (groupedOverlays);
     })
   )
 });
@@ -71,7 +71,7 @@ class GroupLayers extends Component {
         <div className="checkboxes">
           {Object.keys(layers).map(function (name, i) {
             return(
-              <LayersCheckbox map={map} id={name} layer={layers[name]} reset={reset}>
+              <LayersCheckbox  key={'layers-checkbox-' + i} map={map} id={name} layer={layers[name]} reset={reset}>
                 {name}
               </LayersCheckbox>
             );
@@ -110,7 +110,7 @@ class Layers extends Component {
         <div className="layers-wrapper">
           <div className="title">
             <h3>Layers</h3>
-            <a href="#" className="close" onClick={this.props.toggleLayers}>
+            <a href="/" className="close" onClick={this.props.toggleLayers}>
               <i className="icon-b icon-b-close"></i>
             </a>
           </div>
@@ -118,7 +118,7 @@ class Layers extends Component {
             {/*<BaseLayers map={map} />*/}
             {Object.keys(groupedOverlays).map(function (layer, i) {
               return (
-                <GroupLayers map={map} name={layer} layers={groupedOverlays[layer]} reset={reset} />
+                <GroupLayers key={'group-layers-' + i} map={map} name={layer} layers={groupedOverlays[layer]} reset={reset} />
               );
             })}
           </div>

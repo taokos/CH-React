@@ -22,16 +22,13 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
     }
   },
   createGeoJsonObject(data) {
-    if (data) {
+    if (typeof data[0] !== 'undefined' && 'coordinates' in data[0]) {
       const shape = {
-        'type': 'FeatureCollection',
-        'features': [{
-          'type': 'Feature',
-          'geometry': {
-            'type': data.overlay[0] ? data.overlay[0].type : '',
-            'coordinates': data.overlay[0] ? data.overlay[0].coordinates : ''
-          }
-        }]
+        'type': 'Feature',
+        'geometry': {
+          'type': data[0] ? data[0].type : '',
+          'coordinates': data[0] ? data[0].coordinates : ''
+        }
       };
       this.addData(shape);
     }
@@ -39,7 +36,7 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
   addData: function (geojson) {
     var features = Util.isArray(geojson) ? geojson : geojson.features,
       i, len, feature;
-    
+
     if (features) {
       for (i = 0, len = features.length; i < len; i++) {
         // only add this if geometry or geometries are set and not null
@@ -50,24 +47,24 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
       }
       return this;
     }
-    
+
     var options = this.options;
-    
+
     if (options.filter && !options.filter(geojson)) { return this; }
-    
+
     var layer = this.geometryToLayer(geojson, options);
     if (!layer) {
       return this;
     }
     layer.feature = this.asFeature(geojson);
-    
+
     layer.defaultOptions = layer.options;
     this.resetStyle(layer);
-    
+
     if (options.onEachFeature) {
       options.onEachFeature(geojson, layer);
     }
-    
+
     return this.addLayer(layer);
   },
   resetStyle: function (layer) {
@@ -80,7 +77,7 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
     if (geojson.type === 'Feature' || geojson.type === 'FeatureCollection') {
       return geojson;
     }
-    
+
     return {
       type: 'Feature',
       properties: {},
@@ -107,33 +104,33 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
       pointToLayer = options && options.pointToLayer,
       _coordsToLatLng = (options && options.coordsToLatLng) || this.coordsToLatLng,
       latlng, latlngs, i, len;
-    
+
     if (!coords && !geometry) {
       return null;
     }
-    
+
     switch (geometry.type) {
       case 'Point':
         latlng = _coordsToLatLng(coords);
         return pointToLayer ? pointToLayer(geojson, latlng) : new Marker(latlng);
-      
+
       case 'MultiPoint':
         for (i = 0, len = coords.length; i < len; i++) {
           latlng = _coordsToLatLng(coords[i]);
           layers.push(pointToLayer ? pointToLayer(geojson, latlng) : new Marker(latlng));
         }
         return new FeatureGroup(layers);
-      
+
       case 'LineString':
       case 'MultiLineString':
         latlngs = this.coordsToLatLngs(coords, geometry.type === 'LineString' ? 0 : 1, _coordsToLatLng);
         return new Polyline(latlngs, options);
-      
+
       case 'Polygon':
       case 'MultiPolygon':
         latlngs = this.coordsToLatLngs(coords, geometry.type === 'Polygon' ? 1 : 2, _coordsToLatLng);
         return new Polygon(latlngs, options);
-      
+
       case 'GeometryCollection':
         for (i = 0, len = geometry.geometries.length; i < len; i++) {
           var layer = this.geometryToLayer({
@@ -141,28 +138,28 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
             type: 'Feature',
             properties: geojson.properties
           }, options);
-          
+
           if (layer) {
             layers.push(layer);
           }
         }
         return new FeatureGroup(layers);
-      
+
       default:
         throw new Error('Invalid GeoJSON object.');
     }
   },
   coordsToLatLngs(coords, levelsDeep, _coordsToLatLng) {
     var latlngs = [];
-    
+
     for (var i = 0, len = coords.length, latlng; i < len; i++) {
       latlng = levelsDeep ?
         this.coordsToLatLngs(coords[i], levelsDeep - 1, _coordsToLatLng) :
         (_coordsToLatLng || this.coordsToLatLng)(coords[i]);
-      
+
       latlngs.push(latlng);
     }
-    
+
     return latlngs;
   },
   coordsToLatLng(coords) {
