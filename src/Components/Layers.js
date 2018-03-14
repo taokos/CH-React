@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import L from 'leaflet';
 import {GroupedLayers} from 'leaflet-groupedlayercontrol';
 import LayersCheckbox from './Elements/LayersCheckbox';
+import _ from 'underscore';
 
 // Temporary solution for the ST1.
 import api_layers from '../data.json';
@@ -59,19 +60,102 @@ Object.keys(api_layers).map(group => {
 });
 
 class GroupLayers extends Component {
+
+  constructor(props) {
+    super(props);
+    var checkedLayers = {};
+    Object.keys(props.layers).forEach(function (val) {
+      checkedLayers[val] = false;
+    });
+    this.state = {
+      ckeckAll: false,
+      collapsed: true,
+      checkedLayers: checkedLayers
+    };
+  }
+
+  countChecked(update = false) {
+    const allCount = Object.keys(this.state.checkedLayers).length;
+    const values = _.filter(_.values(this.state.checkedLayers), (val) => val).length;
+    if (values > 0 && allCount > values) {
+      if (!this.state.ckeckAll && update) {
+        this.setState({ckeckAll: true});
+      }
+      return 2;
+    }
+    else if(values > 0 && allCount == values) {
+      if (!this.state.ckeckAll && update) {
+        this.setState({ckeckAll: true});
+      }
+      return 1;
+    }
+    else {
+      if (this.state.ckeckAll && update) {
+        this.setState({ckeckAll: false});
+      }
+      return 0;
+    }
+  }
+
+  // Control all checkboxes states.
+  checkBoxChange(e, name, value) {
+    var checkedLayers = this.state.checkedLayers;
+    checkedLayers[name] = value;
+    this.countChecked(true);
+    this.setState({checkedLayers: checkedLayers});
+  }
+
+  // Check/uncheck all checkboxes.
+  checkUncheckAll(e) {
+    this.setState({
+      ckeckAll: !this.state.ckeckAll,
+      checkedLayers: _.mapObject(this.state.checkedLayers, () => !this.state.ckeckAll)
+    });
+  }
+
+  // Collapse checkboxes event.
+  collapse(e) {
+    this.setState({collapsed: !this.state.collapsed });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.reset) {
+      this.setState({
+        ckeckAll: false,
+        checkedLayers: _.mapObject(this.state.checkedLayers, () => false)
+      });
+    }
+  }
+
   render() {
-    const layers = this.props.layers;
-    const reset = this.props.reset;
-    const map = this.props.map;
+    const {map, layers} = this.props;
+    const checkedLayers = this.state.checkedLayers;
+    const that = this;
+    const checkAllModifier = this.countChecked();
     return (
-      <div className="layers-group">
+      <div className={"layers-group" + (this.state.collapsed ? ' collapsed' : '')}>
         <div className="group-name">
-          {this.props.name}
+          <div className={"checkbox" + ((checkAllModifier === 2) ? ' not-all': '')}>
+            <label>
+              <input type="checkbox" onChange={this.checkUncheckAll.bind(this)} checked={this.state.ckeckAll} className={"check-all"} />
+              <span></span>
+            </label>
+          </div>
+          <span className="name toggler" onClick={this.collapse.bind(this)}>
+            {this.props.name}
+            {this.state.collapsed && <i class="icon-b icon-b-sortdown"></i>}
+          </span>
         </div>
-        <div className="checkboxes">
+        <div className="checkboxes collapsible">
           {Object.keys(layers).map(function (name, i) {
             return(
-              <LayersCheckbox  key={'layers-checkbox-' + i} map={map} id={name} layer={layers[name]} reset={reset}>
+              <LayersCheckbox
+                checked={checkedLayers[name]}
+                onChange={that.checkBoxChange.bind(that)}
+                key={'layers-checkbox-' + i}
+                map={map}
+                id={name}
+                layer={layers[name]}>
                 {name}
               </LayersCheckbox>
             );

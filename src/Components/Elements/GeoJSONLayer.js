@@ -22,15 +22,17 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
     }
   },
   createGeoJsonObject(data) {
-    if (typeof data[0] !== 'undefined' && 'coordinates' in data[0]) {
-      const shape = {
-        'type': 'Feature',
-        'geometry': {
-          'type': data[0] ? data[0].type : '',
-          'coordinates': data[0] ? data[0].coordinates : ''
-        }
-      };
-      this.addData(shape);
+    if (data) {
+      if (typeof data[0] !== 'undefined' && 'coordinates' in data[0]) {
+        const shape = {
+          'type': 'Feature',
+          'geometry': {
+            'type': data[0] ? data[0].type : '',
+            'coordinates': data[0] ? data[0].coordinates : ''
+          }
+        };
+        this.addData(shape);
+      }
     }
   },
   addData: function (geojson) {

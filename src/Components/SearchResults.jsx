@@ -64,7 +64,7 @@ class SearchResults extends Component {
       let path = data.items[i].doc.path.split('/').filter(item => item !== '');
       for (let key in path) {
         if (typeof this.state.pieces[path[key]] !== 'undefined') {
-          path[key] = (<a key={'link-'+ key} href={'#' + path[key]}>{this.state.pieces[path[key]].text}</a>);
+          path[key] = (<a key={'link-'+ key} href={'#' + this.state.pieces[path[key]].path.split('/').join('\\')}>{this.state.pieces[path[key]].text}</a>);
         }
         else {
           delete path[key];
@@ -83,9 +83,9 @@ class SearchResults extends Component {
 
     return data.items.map((result, i) =>
       <div key={'result-'+i}>
-        <div className="breadcrumbs">{result.doc.breadcrumbs}</div>
         <div className="title">{result.doc.breadcrumbs[1]}</div>
-        <div className="matches" data-value={result.doc.path} key={i} dangerouslySetInnerHTML={{__html: result.highlight.text}} />
+        <div className="breadcrumbs">{result.doc.breadcrumbs}</div>
+        <div className="matches" data-value={result.doc.path.replace('/', '\\')} key={i} dangerouslySetInnerHTML={{__html: result.highlight.text}} />
       </div>
     );
   }
