@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom';
 import L from 'leaflet';
 import Layers from './Layers.js';
 import MapPopup from "./Elements/mapPopup.js";
+import BaseLayer from './Elements/BaseLayer.js';
+import Control from 'react-leaflet-control';
+import { render, unmountComponentAtNode } from 'react-dom';
+
 
 const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=10&offset=0&ignoreStatus=&indent=&';
 
@@ -34,9 +38,7 @@ class LMap extends React.Component {
 
   constructor(props) {
     super(props);
-
     this.map = this.map.bind(this);
-
     this.state = {
       map: '',
       baseLayers: {},
@@ -55,9 +57,6 @@ class LMap extends React.Component {
     this.setState({
       map: map
     });
-
-    map.setMaxBounds(StateBounds);
-    map.options.minZoom = map.getBoundsZoom(StateBounds);
 
     let popupData = {
         fields: {},
@@ -132,20 +131,36 @@ class LMap extends React.Component {
       fetch(process.env.REACT_APP_PUBLIC_API + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
         .then(results => results.json())
         .then(data => propertyLayer(this, {data}))
-
     });
+
+    map.setMaxBounds(StateBounds);
+    map.options.minZoom = map.getBoundsZoom(StateBounds);
+    map.zoomControl.setPosition('bottomright');
+    this.setState({
+      map: map
+    });
+
   }
 
   render() {
+    let baseLayer = '',
+        layers = '';
+    if (this.state.map) {
+      layers = <Layers
+          toggleLayers={this.props.toggleLayers}
+          map={this.state.map}
+          showLayers={this.props.showLayers} />;
+      baseLayer = <BaseLayer map={this.state.map} />;
+    }
     return (
-      <div className="wrapper">
-        {(this.state.map) ? <Layers map={this.state.map} showLayers={this.props.showLayers} /> : ''}
+      <div className="map-wrapper">
         <div id="popupWrapper"> </div>
+        {layers}
+        {baseLayer}
         <div id="map" className="ch-map"> </div>
       </div>
     );
   }
 }
-
 
 export default LMap;

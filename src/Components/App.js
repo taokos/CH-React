@@ -4,7 +4,6 @@ import {BrowserRouter, Route} from "react-router-dom";
 import LMap from './Map';
 import Doc from './Doc';
 import LeftMenu from './LeftMenu';
-import SearchResults from './SearchResults';
 
 // For development use only.
 if (process.env.NODE_ENV === 'development') {
@@ -33,13 +32,12 @@ class App extends React.Component {
     return (
       <BrowserRouter>
         <div  className="ch">
-          <LeftMenu toggleLayers={this.toggleLayers} />
-          <Route path="/map/us/:p1/:p2" render={()=><LMap showLayers={showLayers}/>} />
+          <LeftMenu toggleLayers={this.toggleLayers} showLayers={this.state.showLayers} />
+          <Route path="/map/us/:p1/:p2" render={()=><LMap toggleLayers={this.toggleLayers} showLayers={showLayers}/>} />
           <Route path="/us/:p1/:p2" component={Doc}/>
-          <Route path="/us/:p1/:p2/search" component={SearchResults}/>
         </div>
       </BrowserRouter>
-    )
+    );
   }
 }
 

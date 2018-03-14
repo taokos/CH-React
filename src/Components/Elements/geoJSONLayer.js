@@ -12,7 +12,12 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
     this._layers = {};
     if (apiUrl) {
       fetch(apiUrl)
-        .then(results => results.json())
+        .then(function (results) {
+          var contentType = results.headers.get("content-type");
+          if(contentType && contentType.includes("application/json")) {
+            return results.json();
+          }
+        })
         .then(data => this.createGeoJsonObject(data));
     }
   },
