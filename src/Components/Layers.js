@@ -198,7 +198,7 @@ class Layers extends Component {
     return (
       <div className={"layers" + hideClass}>
         <div className="groups-wrapper layers-wrapper">
-          <div className="title">
+          <div className="head-title">
             <h3>Layers</h3>
             <a href="/" className="close" onClick={this.close}>
               <i className="icon-b icon-b-close"></i>
