@@ -45,6 +45,7 @@ export default class BaseLayer extends Component {
   };
 
   componentWillMount() {
+    this.props.map.zoomControl.setPosition('bottomright');
     this.leafletElement = new L.Control.BaseControl({position: 'bottomright'});
     this.leafletElement.addTo(this.props.map);
   }

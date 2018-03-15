@@ -44,7 +44,7 @@ class HelpCenter extends Component {
     const helpData = this.state.helpData;
     return (
       <div className={"left-overlay help" + hideClass}>
-        <div className="title">
+        <div className="head-title">
           <h3>Help</h3>
           <a href="/" className="close" onClick={this.close}>
             <i className="icon-b icon-b-close"></i>
