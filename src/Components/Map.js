@@ -4,9 +4,6 @@ import L from 'leaflet';
 import Layers from './Layers.js';
 import MapPopup from "./Elements/mapPopup.js";
 import BaseLayer from './Elements/BaseLayer.js';
-import Control from 'react-leaflet-control';
-import { render, unmountComponentAtNode } from 'react-dom';
-
 
 const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=10&offset=0&ignoreStatus=&indent=&';
 
@@ -76,7 +73,6 @@ class LMap extends React.Component {
               'coordinates': data.data.items[0].gisData.geom.coordinates ? data.data.items[0].gisData.geom.coordinates : ''
             }
           };
-          data
           const newLeayer =  L.geoJson(shape, {type:'property-layer', key:'property-layer-' + data.data.items[0].id});
 
           // Remove current property layer if needed.
@@ -146,7 +142,7 @@ class LMap extends React.Component {
         layers = '';
     if (this.state.map) {
       layers = <Layers
-          toggleLayers={this.props.toggleLayers}
+          toggleLink={this.props.toggleLink}
           map={this.state.map}
           showLayers={this.props.showLayers} />;
       baseLayer = <BaseLayer map={this.state.map} />;
