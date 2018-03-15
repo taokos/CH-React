@@ -1,4 +1,5 @@
 import React from 'react';
+import StreetView from './StreetView.js';
 
 class MapPopup extends React.Component {
 
@@ -31,7 +32,22 @@ class MapPopup extends React.Component {
   render() {
 
     const popupData = this.props.popupData;
+
+    let sityAddress = '';
+    popupData['address'].map(function(item){
+      sityAddress += ', ' + item;
+    });
+
     const item = popupData.data.data.items[0];
+
+    const googleMapsApiKey = 'AIzaSyCSb2pbuLuz-sSLyV3g7qWD3uaW9Edwr8w';
+
+    const streetViewPanoramaOptions = {
+      position: {lat: popupData.lat, lng: popupData.lng},
+      pov: {heading: 100, pitch: 0},
+      zoom: 1
+    };
+
 
     return (
       <section className="map-modal-wrapper" style={{'position':'absolute', 'zIndex':'9999', 'background':'#fff'}}>
@@ -46,7 +62,19 @@ class MapPopup extends React.Component {
               &times;
             </a>
           </header>
-
+          <div style={{
+            width: '600px',
+            height: '350px',
+            backgroundColor: '#eeeeee'
+          }}>
+            <StreetView
+              apiKey={googleMapsApiKey}
+              streetViewPanoramaOptions={streetViewPanoramaOptions}
+              onPositionChanged={position => this.setState({position: position})}
+              onPovChanged={pov => this.setState({pov: pov})}
+              address={item.address + sityAddress}
+            />
+          </div>
           <div className={'modal-content'}>
             {popupData.fields.map(function(value, id) {
               if (value[1] !== '' && value[0] in item) {

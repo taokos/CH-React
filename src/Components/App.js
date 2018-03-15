@@ -1,6 +1,7 @@
 import React from 'react';
-import {BrowserRouter, Route} from "react-router-dom";
+import {BrowserRouter, Route, Switch} from "react-router-dom";
 import HelpCenter from './HelpCenter';
+
 
 import LMap from './Map';
 import Doc from './Doc';
@@ -41,8 +42,10 @@ class App extends React.Component {
             showHelp={this.state.showHelp}
           />
           <HelpCenter toggleLink={this.toggleLink} showHelp={this.state.showHelp} />
-          <Route path="/map/us/:p1/:p2" render={()=><LMap toggleLink={this.toggleLink} showLayers={showLayers}/>} />
-          <Route path="/us/:p1/:p2" component={Doc}/>
+          <Switch>
+            <Route path="/map/us/:p1/:p2" exact render={props=><LMap toggleLayers={this.toggleLayers} showLayers={showLayers} {...props}/>} />
+            <Route path="/us/:p1/:p2" component={Doc}/>
+          </Switch>
         </div>
       </BrowserRouter>
     );
