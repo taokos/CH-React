@@ -8,7 +8,7 @@ import MapSearch from './Elements/MapSearch.js';
 
 const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=10&offset=0&ignoreStatus=&indent=&';
 
-let address = '';
+let address = '', googleApiKey = '';
 
 const fields =[
   ['id', ''],
@@ -105,6 +105,7 @@ class LMap extends React.Component {
         popupData['data'] = data;
         popupData['fields'] = fields;
         popupData['address'] = address;
+        popupData['googleApiKey'] = googleApiKey;
         if (e) {
           popupData['lng'] = e.latlng.lng;
           popupData['lat'] = e.latlng.lat;
@@ -154,15 +155,16 @@ class LMap extends React.Component {
         .then(data => plInit(this, {data}, e))
     });
 
-    const requestUrl = process.env.REACT_APP_SETTINGS_URL + '/api/v1/codehub_react/' + this.props.match.params.p2
+    const baseUrl = process.env.NODE_ENV === 'development' ? 'https://local-codehub.gridics.com' : process.env.REACT_APP_SETTINGS_URL;
+    const requestUrl = baseUrl + '/api/v1/codehub_react/' + this.props.match.params.p2
       + '?alias=/us/'
       + this.props.match.params.p1
       + '/'
       + this.props.match.params.p2
       + '&_format=json';
     fetch(requestUrl)
-    .then(results => results.json())
-    .then(data => setMapOptions(data));
+      .then(results => results.json())
+      .then(data => setMapOptions(data));
 
     function setMapOptions(data) {
       const StateBounds = new L.LatLngBounds(
@@ -170,6 +172,8 @@ class LMap extends React.Component {
         new L.LatLng(data['bounds'][1][0], data['bounds'][1][1])
       );
       address = data['address'];
+      googleApiKey = data['google_api_key'];
+      console.log(data);
       map.setView([data['center'][0], data['center'][1]], 10);
       map.setMaxBounds(StateBounds);
       map.options.minZoom = map.getBoundsZoom(StateBounds);

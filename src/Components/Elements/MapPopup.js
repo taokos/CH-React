@@ -30,17 +30,18 @@ class MapPopup extends React.Component {
   }
 
   render() {
-
     const popupData = this.props.popupData;
 
     let sityAddress = '';
-    popupData['address'].map(function(item){
+    popupData['address'].map(function(item) {
       sityAddress += ', ' + item;
     });
 
     const item = popupData.data.data.items[0];
 
-    const googleMapsApiKey = 'AIzaSyCSb2pbuLuz-sSLyV3g7qWD3uaW9Edwr8w';
+    const googleMapsApiKey = popupData['googleApiKey'];
+
+    console.log(googleMapsApiKey);
 
     const streetViewPanoramaOptions = {
       position: {lat: popupData.lat, lng: popupData.lng},

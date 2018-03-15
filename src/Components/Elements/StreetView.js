@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import asyncLoading from 'react-async-loader';
 
 class StreetView extends React.Component {
-
   constructor() {
     super();
     this.streetView = null;
