@@ -2,9 +2,6 @@ import React, { Component } from 'react';
 import L from 'leaflet';
 import LayersCheckbox from './Elements/LayersCheckbox';
 import _ from 'underscore';
-
-// Temporary solution for the ST1.
-import api_layers from '../data.json';
 import LoadGeoJSON from "./Elements/GeoJSONLayer";
 
 const colors = [
@@ -37,27 +34,6 @@ tailLaers.map((layer) => {
   return (groupedOverlays);
 });
 
-// fetch(LAPI)
-//   .then(lresults => lresults.json())
-//   .then(ldata => layers[ldata]);
-
-
-Object.keys(api_layers).map(group => {
-  return (
-    api_layers[group].layers.map((layer, i) => {
-      const options = {color: colors[i % colors.length], weight: 2, fillOpacity: 0.15, opacity: 0.7};
-      const apiUrl = process.env.REACT_APP_MAP_SHAPE_URL + api_layers[group].layer_type + '=' + layer.layer_id;
-      if (api_layers[group].layer_type === 'land_use') {
-        groupedOverlays["Land Use"][layer.layer_title] = LoadGeoJSON(apiUrl, options);
-      }
-      else {
-        groupedOverlays["Place"][layer.layer_title] = LoadGeoJSON(apiUrl, options);
-      }
-      return (groupedOverlays);
-    })
-  );
-});
-
 class GroupLayers extends Component {
 
   constructor(props) {
@@ -82,7 +58,7 @@ class GroupLayers extends Component {
       }
       return 2;
     }
-    else if(values > 0 && allCount === values) {
+    else if (values > 0 && allCount === values) {
       if (!this.state.ckeckAll && update) {
         this.setState({ckeckAll: true});
       }
@@ -174,11 +150,50 @@ class Layers extends Component {
 
     this.state = {
       reset: false,
+      layers: false
     };
   }
 
+  componentDidMount() {
+    const baseUrl = process.env.NODE_ENV === 'development' ? process.env.REACT_APP_LOCAL_SETTINGS_URL : process.env.REACT_APP_SETTINGS_URL,
+    requestUrl = baseUrl + '/api/v1/codehub_layers/' + this.props.match.params.p2
+      + '?alias=/us/'
+      + this.props.match.params.p1
+      + '/'
+      + this.props.match.params.p2
+      + '&_format=json',
+    that = this;
+
+    fetch(requestUrl)
+    .then(results => results.json())
+    .then(data => saveLayers(data, that));
+
+    function saveLayers(data, that) {
+      if ('land_use' in data) {
+        Object.keys(data).map(group => {
+          data[group].layers.map((layer, i) => {
+            const options = {
+              color: colors[i % colors.length],
+              weight: 2,
+              fillOpacity: 0.15,
+              opacity: 0.7
+            };
+            const apiUrl = process.env.REACT_APP_MAP_SHAPE_URL + data[group].layer_type + '=' + layer.layer_id;
+            if (data[group].layer_type === 'land_use') {
+              groupedOverlays["Land Use"][layer.layer_title] = LoadGeoJSON(apiUrl, options);
+            }
+            else {
+              groupedOverlays["Place"][layer.layer_title] = LoadGeoJSON(apiUrl, options);
+            }
+          })
+        });
+        that.setState({layers: true});
+      }
+    }
+  }
+
   close(e) {
-    e.preventDefault()
+    e.preventDefault();
     this.props.toggleLink(e, 'showLayers');
   }
 
@@ -195,29 +210,42 @@ class Layers extends Component {
     const {reset} = this.state;
     const map = this.props.map;
     const hideClass = this.props.showLayers ? '' : ' hide';
-    return (
-      <div className={"layers" + hideClass}>
-        <div className="groups-wrapper layers-wrapper">
-          <div className="title">
-            <h3>Layers</h3>
-            <a href="/" className="close" onClick={this.close}>
-              <i className="icon-b icon-b-close"></i>
-            </a>
+
+    if (this.state.layers) {
+      return (
+        <div className={"layers" + hideClass}>
+          <div className="groups-wrapper layers-wrapper">
+            <div className="title">
+              <h3>Layers</h3>
+              <a href="/" className="close" onClick={this.close}>
+                <i className="icon-b icon-b-close"></i>
+              </a>
+            </div>
+            <div className="overlays">
+              {/*<BaseLayers map={map} />*/}
+              {Object.keys(groupedOverlays).map(function (layer, i) {
+                return (
+                  <GroupLayers key={'group-layers-' + i} map={map} name={layer}
+                               layers={groupedOverlays[layer]} reset={reset}/>
+                );
+              })}
+            </div>
+            <div className="form-actions">
+              <button className="reset form-submit"
+                      onClick={this.clickReset.bind(this)}>Reset
+              </button>
+            </div>
           </div>
-          <div className="overlays">
-            {/*<BaseLayers map={map} />*/}
-            {Object.keys(groupedOverlays).map(function (layer, i) {
-              return (
-                <GroupLayers key={'group-layers-' + i} map={map} name={layer} layers={groupedOverlays[layer]} reset={reset} />
-              );
-            })}
-          </div>
-        <div className="form-actions">
-          <button className="reset form-submit" onClick={this.clickReset.bind(this)}>Reset</button>
         </div>
+      );
+    }
+    else {
+      return(
+        <div className={"layers" + hideClass}>
+          Loading ...
         </div>
-      </div>
-    );
+      )
+    }
   }
 }
 

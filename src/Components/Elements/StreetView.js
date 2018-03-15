@@ -60,13 +60,6 @@ class StreetView extends React.Component {
 }
 
 if (typeof React.PropTypes !== 'undefined') {
-  StreetView.propTypes = {
-    apiKey: React.PropTypes.string.isRequired,
-    streetViewPanoramaOptions: React.PropTypes.object.isRequired,
-    onPositionChanged: React.PropTypes.func,
-    onPovChanged: React.PropTypes.func
-  };
-
   StreetView.defaultProps = {
     streetViewPanoramaOptions: {
       position: {lat: 0, lng: 0},

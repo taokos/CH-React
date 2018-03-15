@@ -191,6 +191,7 @@ class LMap extends React.Component {
         layers = '';
     if (this.state.map) {
       layers = <Layers
+          match = {this.props.match}
           toggleLink={this.props.toggleLink}
           map={this.state.map}
           showLayers={this.props.showLayers} />;
