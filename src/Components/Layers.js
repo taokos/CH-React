@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import L from 'leaflet';
-import {GroupedLayers} from 'leaflet-groupedlayercontrol';
 import LayersCheckbox from './Elements/LayersCheckbox';
 import _ from 'underscore';
 
@@ -56,7 +55,7 @@ Object.keys(api_layers).map(group => {
       }
       return (groupedOverlays);
     })
-  )
+  );
 });
 
 class GroupLayers extends Component {
@@ -83,7 +82,7 @@ class GroupLayers extends Component {
       }
       return 2;
     }
-    else if(values > 0 && allCount == values) {
+    else if(values > 0 && allCount === values) {
       if (!this.state.ckeckAll && update) {
         this.setState({ckeckAll: true});
       }
@@ -133,7 +132,7 @@ class GroupLayers extends Component {
     const that = this;
     const checkAllModifier = this.countChecked();
     return (
-      <div className={"layers-group" + (this.state.collapsed ? ' collapsed' : '')}>
+      <div className={"collapsible-group layers-group" + (this.state.collapsed ? ' collapsed' : '')}>
         <div className="group-name">
           <div className={"checkbox" + ((checkAllModifier === 2) ? ' not-all': '')}>
             <label>
@@ -171,11 +170,18 @@ class Layers extends Component {
   constructor(props) {
     super(props);
 
+    this.close = this.close.bind(this);
+
     this.state = {
       reset: false,
     };
-
   }
+
+  close(e) {
+    e.preventDefault()
+    this.props.toggleLink(e, 'showLayers');
+  }
+
   clickReset(e) {
     e.preventDefault();
     this.setState({reset: true});
@@ -191,10 +197,10 @@ class Layers extends Component {
     const hideClass = this.props.showLayers ? '' : ' hide';
     return (
       <div className={"layers" + hideClass}>
-        <div className="layers-wrapper">
+        <div className="groups-wrapper layers-wrapper">
           <div className="title">
             <h3>Layers</h3>
-            <a href="/" className="close" onClick={this.props.toggleLayers}>
+            <a href="/" className="close" onClick={this.close}>
               <i className="icon-b icon-b-close"></i>
             </a>
           </div>

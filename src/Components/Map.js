@@ -46,7 +46,6 @@ class LMap extends React.Component {
 
   getPropertyLayer(key) {
     let fieldsRequest = '';
-
     fields.map(function(value, index) {
       fieldsRequest += 'fields[]=' + value[0] + '&';
     });
@@ -188,7 +187,7 @@ class LMap extends React.Component {
         layers = '';
     if (this.state.map) {
       layers = <Layers
-          toggleLayers={this.props.toggleLayers}
+          toggleLink={this.props.toggleLink}
           map={this.state.map}
           showLayers={this.props.showLayers} />;
       baseLayer = <BaseLayer map={this.state.map} />;
