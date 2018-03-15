@@ -99,7 +99,7 @@ class SearchResults extends Component {
       `${count} ${noun}${count !== 1 ? suffix : ''}`;
 
     return (
-      <div key={this.props.lastSearch} id="view-details">
+      <div key={new Date().getTime()} id="view-details">
         <div className="ch-results">
           <div className="ch-searching">Search Results for
             “{this.props.lastSearch}“
