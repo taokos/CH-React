@@ -154,7 +154,7 @@ class LMap extends React.Component {
         .then(data => plInit(this, {data}, e))
     });
 
-    const requestUrl = 'https://local-codehub.gridics.com' + '/api/v1/codehub_react/' + this.props.match.params.p2
+    const requestUrl = process.env.REACT_APP_SETTINGS_URL + '/api/v1/codehub_react/' + this.props.match.params.p2
       + '?alias=/us/'
       + this.props.match.params.p1
       + '/'
