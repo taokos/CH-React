@@ -173,7 +173,6 @@ class LMap extends React.Component {
       );
       address = data['address'];
       googleApiKey = data['google_api_key'];
-      console.log(data);
       map.setView([data['center'][0], data['center'][1]], 10);
       map.setMaxBounds(StateBounds);
       map.options.minZoom = map.getBoundsZoom(StateBounds);

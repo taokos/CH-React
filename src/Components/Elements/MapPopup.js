@@ -41,8 +41,6 @@ class MapPopup extends React.Component {
 
     const googleMapsApiKey = popupData['googleApiKey'];
 
-    console.log(googleMapsApiKey);
-
     const streetViewPanoramaOptions = {
       position: {lat: popupData.lat, lng: popupData.lng},
       pov: {heading: 100, pitch: 0},
