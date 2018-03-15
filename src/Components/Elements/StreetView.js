@@ -14,7 +14,7 @@ class StreetView extends React.Component {
       const geocoder = new this.props.googleMaps.Geocoder(), thet = this;
       let lat = null , lng = null;
       // Found point by Address if posible.
-      geocoder.geocode( { 'address': this.props.address + ', ' + process.env.REACT_APP_ADDRESS}, function(results, status) {
+      geocoder.geocode( { 'address': this.props.address}, function(results, status) {
         if (results[0] && 'geometry' in results[0] && 'location' in results[0].geometry) {
             lat = results[0].geometry.location.lat();
             lng = results[0].geometry.location.lng();

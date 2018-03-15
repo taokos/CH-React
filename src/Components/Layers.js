@@ -143,7 +143,7 @@ class GroupLayers extends Component {
           </div>
           <span className="name toggler" onClick={this.collapse.bind(this)}>
             {this.props.name}
-            {this.state.collapsed && <i class="icon-b icon-b-sortdown"></i>}
+            {this.state.collapsed && <i className="icon-b icon-b-sortdown"></i>}
           </span>
         </div>
         <div className="checkboxes collapsible">

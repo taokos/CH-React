@@ -8,11 +8,7 @@ import MapSearch from './Elements/MapSearch.js';
 
 const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=10&offset=0&ignoreStatus=&indent=&';
 
-const center = [26.1224, -80.1373];
-const StateBounds = new L.LatLngBounds(
-  new L.LatLng(26.2142, -80.0570),
-  new L.LatLng(26.0743, -80.2333)
-);
+let address = '';
 
 const fields =[
   ['id', ''],
@@ -65,7 +61,7 @@ class LMap extends React.Component {
         fields: {},
         data:{},
         lng: '',
-        lat: ''
+        lat: '',
       },
       layerExist  = false;
 
@@ -107,6 +103,7 @@ class LMap extends React.Component {
       function renderPopup(data, e) {
         popupData['data'] = data;
         popupData['fields'] = fields;
+        popupData['address'] = address;
         if (e) {
           popupData['lng'] = e.latlng.lng;
           popupData['lat'] = e.latlng.lat;
@@ -137,7 +134,7 @@ class LMap extends React.Component {
   }
 
   map(plInit) {
-    const map = L.map('map').setView(center, 10);
+    const map = L.map('map');
 
     this.setState({
       map: map
@@ -156,9 +153,28 @@ class LMap extends React.Component {
         .then(data => plInit(this, {data}, e))
     });
 
-    map.setMaxBounds(StateBounds);
-    map.options.minZoom = map.getBoundsZoom(StateBounds);
-    map.zoomControl.setPosition('bottomright');
+    const requestUrl = 'https://local-codehub.gridics.com' + '/api/v1/codehub_react/' + this.props.match.params.p2
+      + '?alias=/us/'
+      + this.props.match.params.p1
+      + '/'
+      + this.props.match.params.p2
+      + '&_format=json';
+    fetch(requestUrl)
+    .then(results => results.json())
+    .then(data => setMapOptions(data));
+
+    function setMapOptions(data) {
+      const StateBounds = new L.LatLngBounds(
+        new L.LatLng(data['bounds'][0][0], data['bounds'][0][1]),
+        new L.LatLng(data['bounds'][1][0], data['bounds'][1][1])
+      );
+      address = data['address'];
+      map.setView([data['center'][0], data['center'][1]], 10);
+      map.setMaxBounds(StateBounds);
+      map.options.minZoom = map.getBoundsZoom(StateBounds);
+      map.zoomControl.setPosition('bottomright');
+    }
+
     this.setState({
       map: map
     });
