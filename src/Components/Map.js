@@ -81,6 +81,8 @@ class LMap extends React.Component {
         if ('options' in layer && 'options' in newLeayer &&  layer.options.type ===  'property-layer') {
           if (layer.options.key !== newLeayer.options.key) {
             map.removeLayer(layer);
+            hide();
+            layerExist = false;
           }
           else {
             layerExist = true;
