@@ -43,7 +43,7 @@ class App extends React.Component {
           />
           <HelpCenter toggleLink={this.toggleLink} showHelp={this.state.showHelp} />
           <Switch>
-            <Route path="/map/us/:p1/:p2" exact render={props=><LMap toggleLayers={this.toggleLayers} showLayers={showLayers} {...props}/>} />
+            <Route path="/map/us/:p1/:p2" exact render={props=><LMap toggleLink={this.toggleLink} showLayers={showLayers} {...props}/>} />
             <Route path="/us/:p1/:p2" component={Doc}/>
           </Switch>
         </div>

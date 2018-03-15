@@ -5,30 +5,33 @@ import Layers from './Layers.js';
 import MapPopup from "./Elements/MapPopup.js";
 import BaseLayer from './Elements/BaseLayer.js';
 import MapSearch from './Elements/MapSearch.js';
+import _ from 'underscore';
 
 const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=10&offset=0&ignoreStatus=&indent=&';
 
 let address = '', googleApiKey = '';
 
-const fields =[
-  ['id', ''],
-  ['title', ''],
-  ['folioNumber', 'Folio'],
-  ['address', 'Address'],
-  ['owners', 'Owner(s)'],
-  ['owner_mailing_address','Owner Address'],
-  ['legalDesc', 'Property Description'],
-  ['landUseDorCode','Detailed Use'],
-  ['yearBuilt', 'Year Built of Property'],
-  ['buildings','Number of Buildings'],
-  ['bedrooms','Bed Count'],
-  ['baths','Bath Count'],
-  ['livingUnits', 'Number of Units'],
-  ['propertySize', 'Property Sq Ft'],
-  ['abuttingProperties','Neighboring Properties'],
-  ['streetName', 'Places - Street(s)'],
-  ['building:real','Places - Related Building / Condominium Name']
-];
+const fieldsMapping = {
+  'Property Information': {
+    'id': '',
+    'title': '',
+    'folioNumber': 'Folio',
+    'address': 'Address',
+    'owners': 'Owner(s)',
+    'owner_mailing_address': 'Owner Address',
+    'legalDesc': 'Property Description',
+    'landUseDorCode': 'Detailed Use',
+    'yearBuilt': 'Year Built of Property',
+    'buildings': 'Number of Buildings',
+    'bedrooms': 'Bed Count',
+    'baths': 'Bath Count',
+    'livingUnits': 'Number of Units',
+    'propertySize': 'Property Sq Ft',
+    'abuttingProperties': 'Neighboring Properties',
+    'streetName': 'Places - Street(s)',
+    'building:real': 'Places - Related Building / Condominium Name'
+  }
+};
 
 class LMap extends React.Component {
 
@@ -44,11 +47,12 @@ class LMap extends React.Component {
     };
   }
 
+  prepareFieldsRequest(fieldsKey) {
+    return _.values(_.mapObject(fieldsMapping[fieldsKey], (val, key) => 'fields[]=' + key + '&')).join('')
+  }
+
   getPropertyLayer(key) {
-    let fieldsRequest = '';
-    fields.map(function(value, index) {
-      fieldsRequest += 'fields[]=' + value[0] + '&';
-    });
+    let fieldsRequest = this.prepareFieldsRequest('Property Information');
 
     fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'address=' + key + '&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
     .then(results => results.json())
@@ -103,7 +107,7 @@ class LMap extends React.Component {
       // Render popup.
       function renderPopup(data, e) {
         popupData['data'] = data;
-        popupData['fields'] = fields;
+        popupData['fields'] = fieldsMapping;
         popupData['address'] = address;
         popupData['googleApiKey'] = googleApiKey;
         if (e) {
@@ -144,15 +148,11 @@ class LMap extends React.Component {
 
     // Add property layer and open popup with property info.
     map.on('click', function(e) {
-      let fieldsRequest = '';
-
-      fields.map(function(value, index) {
-        fieldsRequest += 'fields[]=' + value[0] + '&';
-      });
+      let fieldsRequest = _.values(_.mapObject(fieldsMapping['Property Information'], (val, key) => 'fields[]=' + key + '&')).join('');
 
       fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
         .then(results => results.json())
-        .then(data => plInit(this, {data}, e))
+        .then(data => plInit(this, {data}, e));
     });
 
     const baseUrl = process.env.NODE_ENV === 'development' ? process.env.REACT_APP_LOCAL_SETTINGS_URL : process.env.REACT_APP_SETTINGS_URL;
@@ -177,7 +177,6 @@ class LMap extends React.Component {
       map.setView([data['center'][0], data['center'][1]], 10);
       map.setMaxBounds(StateBounds);
       map.options.minZoom = map.getBoundsZoom(StateBounds);
-      map.zoomControl.setPosition('bottomright');
     }
 
     this.setState({

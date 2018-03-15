@@ -215,7 +215,7 @@ class Layers extends Component {
       return (
         <div className={"layers" + hideClass}>
           <div className="groups-wrapper layers-wrapper">
-            <div className="title">
+            <div className="head-title">
               <h3>Layers</h3>
               <a href="/" className="close" onClick={this.close}>
                 <i className="icon-b icon-b-close"></i>
@@ -225,14 +225,13 @@ class Layers extends Component {
               {/*<BaseLayers map={map} />*/}
               {Object.keys(groupedOverlays).map(function (layer, i) {
                 return (
-                  <GroupLayers key={'group-layers-' + i} map={map} name={layer}
-                               layers={groupedOverlays[layer]} reset={reset}/>
+                  <GroupLayers key={'group-layers-' + i} map={map} name={layer} layers={groupedOverlays[layer]} reset={reset} />
                 );
               })}
             </div>
             <div className="form-actions">
               <button className="reset form-submit"
-                      onClick={this.clickReset.bind(this)}>Reset
+                onClick={this.clickReset.bind(this)}>Reset
               </button>
             </div>
           </div>
