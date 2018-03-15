@@ -1,5 +1,6 @@
 import React from 'react';
 import {BrowserRouter, Route} from "react-router-dom";
+import HelpCenter from './HelpCenter';
 
 import LMap from './Map';
 import Doc from './Doc';
@@ -14,17 +15,19 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
-    this.toggleLayers = this.toggleLayers.bind(this);
     this.state = {
-      showLayers: false
+      showLayers: false,
+      showHelp: false
     };
+    this.toggleLink = this.toggleLink.bind(this);
   }
 
-  toggleLayers(e) {
+  toggleLink(e, varName) {
     e.preventDefault();
-    this.setState(prevState => ({
-      showLayers: !prevState.showLayers
-    }));
+    this.setState(function (prevState) {
+      prevState[varName] = !prevState[varName];
+      return prevState;
+    });
   }
 
   render() {
@@ -32,8 +35,13 @@ class App extends React.Component {
     return (
       <BrowserRouter>
         <div  className="ch">
-          <LeftMenu toggleLayers={this.toggleLayers} showLayers={this.state.showLayers} />
-          <Route path="/map/us/:p1/:p2" render={()=><LMap toggleLayers={this.toggleLayers} showLayers={showLayers}/>} />
+          <LeftMenu
+            toggleLink={this.toggleLink}
+            showLayers={this.state.showLayers}
+            showHelp={this.state.showHelp}
+          />
+          <HelpCenter toggleLink={this.toggleLink} showHelp={this.state.showHelp} />
+          <Route path="/map/us/:p1/:p2" render={()=><LMap toggleLink={this.toggleLink} showLayers={showLayers}/>} />
           <Route path="/us/:p1/:p2" component={Doc}/>
         </div>
       </BrowserRouter>

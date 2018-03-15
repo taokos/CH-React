@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import L from 'leaflet';
-import { render, unmountComponentAtNode } from 'react-dom';
+import {render} from 'react-dom';
 
 L.Control.BaseControl = L.Control.extend({
   options: {
@@ -85,7 +85,7 @@ export default class BaseLayer extends Component {
     const _this = this;
     const container = this.leafletElement.getContainer();
     render(
-      <a href="#" className={"base-layer-switcher " + this.state.checked} onClick={_this.handleChange}></a>,
+      <button className={"button-link base-layer-switcher " + this.state.checked} onClick={_this.handleChange}></button>,
       container
     );
   }

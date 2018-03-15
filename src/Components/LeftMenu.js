@@ -13,22 +13,27 @@ class UserBlock extends Component {
   }
 
   componentWillMount() {
-    fetch(userAPI)
+    fetch(userAPI, {
+      credentials: 'include'
+    })
       .then(results => results.json())
       .then(data => this.setState({userData: data}));
   }
 
   render() {
+    if (!this.state.userData) {
+      return '';
+    }
     return (
       <div className="user-block">
-        {this.state.userData.uid == 0 ? (
+        {this.state.userData.uid === 0 ? (
           <a href={siteUrl + '/user/login'} className="user">
-            <span className="image"><img src={this.state.userData.picture} /></span>
+            <span className="image"><img alt="No avatar" src={this.state.userData.picture} /></span>
             <span className="name">Login</span>
           </a>
         ) : (
           <a href={siteUrl + '/user/' + this.state.userData.uid} className="user">
-            <span className="image"><img src={this.state.userData.picture} /></span>
+            <span className="image"><img alt="Avatar" src={this.state.userData.picture} /></span>
             <span className="name">{this.state.userData.name}</span>
           </a>
         )}
@@ -67,6 +72,7 @@ class LeftMenu extends Component {
       pageData: '',
       expanded: false
     };
+    document.body.classList.add('app-nav');
   }
 
   toggleMenu(e) {
@@ -87,10 +93,10 @@ class LeftMenu extends Component {
   render() {
     return (
       <div className={"ch-menu" + (this.state.expanded ? ' expanded' : '')}>
-        <a href="#" onClick={this.toggleMenu.bind(this)} className="toggle"></a>
+        <button onClick={this.toggleMenu.bind(this)} className="toggle button-link"></button>
         {this.state.pageData && this.state.pageData.field_logo[0] ? (
           <section className="ch-city-logo">
-            <img src={this.state.pageData.field_logo[0].url} className="logo" />
+            <img alt="City Logo" src={this.state.pageData.field_logo[0].url} className="logo" />
             <span className="title">{this.state.pageData.name[0].value}</span>
           </section>
         ) : ''}
@@ -100,19 +106,19 @@ class LeftMenu extends Component {
             <i className="icon-b icon-b-ic-properties"></i>
             <span className="title">Properties</span>
           </a>
-          <a onClick={this.props.toggleLayers} href="/" className={"layers" + (this.props.showLayers ? ' active' : '')}>
+          <a onClick={(e) => this.props.toggleLink(e, 'showLayers')} href="/" className={"layers" + (this.props.showLayers ? ' active' : '')}>
             <i className="icon-b icon-b-ic-layers"></i>
             <span className="title">Layers</span>
           </a>
         </nav>
         <nav className="menu ch-bottom-menu">
-          <a href="/" className="help">
+          <a onClick={(e) => this.props.toggleLink(e, 'showHelp')} href="/" className={"help" + (this.props.showHelp ? ' active' : '')}>
             <i className="icon-b icon-b-ic-help"></i>
             <span className="title">Help</span>
           </a>
           <ul className="toggle-menu">
             <li>
-              <a href="#" className="sub-menu">
+              <a href="#sub-menu" className="sub-menu">
                 <i className="icon-b icon-b-ic-lines"></i>
                 <span className="title">Switch Products</span>
               </a>
