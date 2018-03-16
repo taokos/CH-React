@@ -163,8 +163,8 @@ class Layers extends Component {
     that = this;
 
     fetch(requestUrl)
-    .then(results => results.json())
-    .then(data => saveLayers(data, that));
+      .then(results => results.json())
+      .then(data => saveLayers(data, that));
 
     function saveLayers(data, that) {
       _.mapObject(data, function(group, id) {

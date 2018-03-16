@@ -1,6 +1,8 @@
 import React from 'react';
 import {BrowserRouter, Route, Switch} from "react-router-dom";
 import HelpCenter from './HelpCenter';
+import Utilities from '../Utilities/Utilities.js';
+import _ from 'underscore';
 
 
 import LMap from './Map';
@@ -27,6 +29,9 @@ class App extends React.Component {
     e.preventDefault();
     this.setState(function (prevState) {
       prevState[varName] = !prevState[varName];
+      document.body.classList.remove('left-overlay-enabled');
+      document.body.classList.toggle(Utilities.cleanCssIdentifier(varName + '-enabled'), prevState[varName]);
+      document.body.classList.toggle('left-overlay-enabled', _.filter(prevState).length);
       return prevState;
     });
   }

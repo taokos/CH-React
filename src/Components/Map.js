@@ -202,15 +202,16 @@ class LMap extends React.Component {
       .then(data => setMapOptions(data));
 
     function setMapOptions(data) {
-      // const StateBounds = new L.LatLngBounds(
-      //   new L.LatLng(data['bounds'][0][0], data['bounds'][0][1]),
-      //   new L.LatLng(data['bounds'][1][0], data['bounds'][1][1])
-      // );
+      const StateBounds = new L.LatLngBounds(
+        new L.LatLng(data['bounds'][0][0], data['bounds'][0][1]),
+        new L.LatLng(data['bounds'][1][0], data['bounds'][1][1])
+      );
       address = data['address'];
       googleApiKey = data['google_api_key'];
-      map.setView([data['center'][0], data['center'][1]], 10);
-      // map.setMaxBounds(StateBounds);
-      // map.options.minZoom = map.getBoundsZoom(StateBounds);
+      let zoom = map.getBoundsZoom(StateBounds, false);
+      map.options.minZoom = zoom;
+      map.setView([data['center'][0], data['center'][1]], zoom);
+      map.setMaxBounds(StateBounds);
     }
 
     this.setState({

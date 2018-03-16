@@ -3,6 +3,7 @@ import createBrowserHistory from 'history/createBrowserHistory';
 
 const history = createBrowserHistory();
 const siteUrl = process.env.REACT_APP_SETTINGS_URL;
+const accountUrl = process.env.REACT_APP_ACCOUNTS_SITE;
 const userAPI = siteUrl + '/api/v1/sso-user?_format=json';
 
 class UserBlock extends Component {
@@ -17,24 +18,24 @@ class UserBlock extends Component {
       credentials: 'include'
     })
       .then(results => results.json())
-      .then(data => this.setState({userData: data}));
+      .then(data => this.setState({userData: data}))
+      .catch(function (e) {
+        console.error(e);
+      });
   }
 
   render() {
-    if (!this.state.userData) {
-      return '';
-    }
     return (
       <div className="user-block">
-        {this.state.userData.uid === 0 ? (
-          <a href={siteUrl + '/user/login'} className="user">
-            <span className="image"><img alt="No avatar" src={this.state.userData.picture} /></span>
-            <span className="name">Login</span>
-          </a>
-        ) : (
-          <a href={siteUrl + '/user/' + this.state.userData.uid} className="user">
+        {this.state.userData ? (
+          <a href={accountUrl + '/user'} className="user">
             <span className="image"><img alt="Avatar" src={this.state.userData.picture} /></span>
-            <span className="name">{this.state.userData.name}</span>
+            <span className="name">{this.state.userData.field_user_first_name + ' ' + this.state.userData.field_user_last_name}</span>
+        </a>
+        ) : (
+          <a href={accountUrl + '/user/login?destination-url=' + window.location} className="user">
+            <span className="image default"></span>
+            <span className="name">Login</span>
           </a>
         )}
       </div>
@@ -106,10 +107,12 @@ class LeftMenu extends Component {
             <i className="icon-b icon-b-ic-properties"></i>
             <span className="title">Properties</span>
           </a>
-          <a onClick={(e) => this.props.toggleLink(e, 'showLayers')} href="/" className={"layers" + (this.props.showLayers ? ' active' : '')}>
-            <i className="icon-b icon-b-ic-layers"></i>
-            <span className="title">Layers</span>
-          </a>
+          {history.location.pathname.indexOf(this.map) > -1 && (
+            <a onClick={(e) => this.props.toggleLink(e, 'showLayers')} href="/" className={"layers" + (this.props.showLayers ? ' active' : '')}>
+              <i className="icon-b icon-b-ic-layers"></i>
+              <span className="title">Layers</span>
+            </a>
+          )}
         </nav>
         <nav className="menu ch-bottom-menu">
           <a onClick={(e) => this.props.toggleLink(e, 'showHelp')} href="/" className={"help" + (this.props.showHelp ? ' active' : '')}>
