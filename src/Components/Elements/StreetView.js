@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import asyncLoading from 'react-async-loader';
 
 class StreetView extends React.Component {
-
   constructor() {
     super();
     this.streetView = null;
@@ -61,13 +60,6 @@ class StreetView extends React.Component {
 }
 
 if (typeof React.PropTypes !== 'undefined') {
-  StreetView.propTypes = {
-    apiKey: React.PropTypes.string.isRequired,
-    streetViewPanoramaOptions: React.PropTypes.object.isRequired,
-    onPositionChanged: React.PropTypes.func,
-    onPovChanged: React.PropTypes.func
-  };
-
   StreetView.defaultProps = {
     streetViewPanoramaOptions: {
       position: {lat: 0, lng: 0},

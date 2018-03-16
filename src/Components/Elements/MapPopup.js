@@ -52,7 +52,7 @@ class MapPopup extends React.Component {
     });
 
     const item = popupData.data.data.items[0];
-    const googleMapsApiKey = 'AIzaSyCSb2pbuLuz-sSLyV3g7qWD3uaW9Edwr8w';
+    const googleMapsApiKey = popupData['googleApiKey'];
     const activeTab = this.state.activeTab;
     const streetViewPanoramaOptions = {
       position: {lat: popupData.lat, lng: popupData.lng},
@@ -78,13 +78,15 @@ class MapPopup extends React.Component {
         </div>
         <div className="overlay-content">
           <div className={"properties-tab tab" + (activeTab == 'properties' ? '' : ' hide')}>
-            <StreetView
-              apiKey={googleMapsApiKey}
-              streetViewPanoramaOptions={streetViewPanoramaOptions}
-              onPositionChanged={position => this.setState({position: position})}
-              onPovChanged={pov => this.setState({pov: pov})}
-              address={item.address + cityAddress}
-            />
+            <div style={{'height':'200px'}}>
+              <StreetView
+                apiKey={googleMapsApiKey}
+                streetViewPanoramaOptions={streetViewPanoramaOptions}
+                onPositionChanged={position => this.setState({position: position})}
+                onPovChanged={pov => this.setState({pov: pov})}
+                address={item.address + cityAddress}
+              />
+            </div>
             <div className="tables">
               {
                 _.values(_.mapObject(popupData.fields, function (value, key) {
