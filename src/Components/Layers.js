@@ -16,10 +16,10 @@ const colors = [
   "#db4cb7"
 ],
   tailLaers = [
-    {title:"Parcel Lines", urlTemplate:'//st1-tiles.gridics.com/property_records_parcel_lines/{z}/{x}/{y}.png'},
-    {title:"Future Land Use", urlTemplate:'//st1-tiles.gridics.com/land_use_future_land_use/{z}/{x}/{y}.png'},
-    {title:"Zoning Code", urlTemplate:'//st1-tiles.gridics.com/land_use_zoning_code/{z}/{x}/{y}.png'},
-    {title:"Zoning Overlay", urlTemplate:'//st1-tiles.gridics.com/land_use_zoning_overlay/{z}/{x}/{y}.png'},
+    {title:"Parcel Lines", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/property_records_parcel_lines/{z}/{x}/{y}.png'},
+    {title:"Future Land Use", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/land_use_future_land_use/{z}/{x}/{y}.png'},
+    {title:"Zoning Code", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/land_use_zoning_code/{z}/{x}/{y}.png'},
+    {title:"Zoning Overlay", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/land_use_zoning_overlay/{z}/{x}/{y}.png'},
   ];
 
 
@@ -206,14 +206,6 @@ class Layers extends Component {
     const {reset} = this.state;
     const map = this.props.map;
     const hideClass = this.props.showLayers ? '' : ' hide';
-
-    if ('detailsPopup' in this.props) {
-      return (
-        <div className="overlay-layers">
-          <GroupLayers map={map} name={'Layers'} layers={groupedOverlays['Layers']}/>
-        </div>
-      )
-    }
 
     if (this.state.layers) {
       return (

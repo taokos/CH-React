@@ -46,7 +46,7 @@ class DetailsMap extends React.Component {
       <div>
         <div className={'head-title'}>{item.title[0]}</div>
         <div className={'list-layers'}>
-          <Layers detailsPopup={true} map={map} {...this.props}/>
+          <Layers map={map} {...this.props}/>
         </div>
       </div>
     )
@@ -101,7 +101,6 @@ class LMap extends React.Component {
       const newLeayer =  L.geoJson(shape, {type:'property-layer', key:'property-layer-' + data.data.items[0].id});
 
 
-      // console.log(data.data.items[0].title[0]);
       newLeayer.bindPopup('<div id="l-map-popup">THIS IS POPUP !!!</div>');
 
       // Remove current property layer if needed.
@@ -129,7 +128,7 @@ class LMap extends React.Component {
         ReactDOM.render('', document.getElementById('popupWrapper'));
       }
 
-       // Render popup.
+      // Render popup.
       function renderPopup(data, e) {
         popupData['data'] = data;
         popupData['fields'] = fieldsMapping;
