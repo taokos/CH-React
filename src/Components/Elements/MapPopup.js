@@ -14,10 +14,12 @@ class MapPopup extends React.Component {
 
   componentWillMount() {
     document.addEventListener("keydown", this._handlerEsc.bind(this));
+    document.body.classList.add('properties-enabled');
   }
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this._handlerEsc.bind(this));
+    document.body.classList.remove('properties-enabled');
   }
 
   switchTab(e, tab) {
@@ -78,7 +80,7 @@ class MapPopup extends React.Component {
         </div>
         <div className="overlay-content">
           <div className={"properties-tab tab" + (activeTab == 'properties' ? '' : ' hide')}>
-            <div style={{'height':'200px'}}>
+            <div className="street-view" style={{'height':'200px'}}>
               <StreetView
                 apiKey={googleMapsApiKey}
                 streetViewPanoramaOptions={streetViewPanoramaOptions}

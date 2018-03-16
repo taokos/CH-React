@@ -174,9 +174,10 @@ class LMap extends React.Component {
       );
       address = data['address'];
       googleApiKey = data['google_api_key'];
-      map.setView([data['center'][0], data['center'][1]], 10);
+      let zoom = map.getBoundsZoom(StateBounds, false);
+      map.options.minZoom = zoom;
+      map.setView([data['center'][0], data['center'][1]], zoom);
       map.setMaxBounds(StateBounds);
-      map.options.minZoom = map.getBoundsZoom(StateBounds);
     }
 
     this.setState({
