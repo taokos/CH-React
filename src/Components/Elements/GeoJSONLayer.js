@@ -10,10 +10,10 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
   initialize: function (apiUrl, options) {
     Util.setOptions(this, options);
     this._layers = {};
-    if (apiUrl) {
+    if (typeof apiUrl !== 'undefined') {
       fetch(apiUrl)
         .then(function (results) {
-          var contentType = results.headers.get("content-type");
+          let contentType = results.headers.get("content-type");
           if(contentType && contentType.includes("application/json")) {
             return results.json();
           }
@@ -36,7 +36,7 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
     }
   },
   addData: function (geojson) {
-    var features = Util.isArray(geojson) ? geojson : geojson.features,
+    let features = Util.isArray(geojson) ? geojson : geojson.features,
       i, len, feature;
 
     if (features) {
@@ -50,11 +50,11 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
       return this;
     }
 
-    var options = this.options;
+    let options = this.options;
 
     if (options.filter && !options.filter(geojson)) { return this; }
 
-    var layer = this.geometryToLayer(geojson, options);
+    let layer = this.geometryToLayer(geojson, options);
     if (!layer) {
       return this;
     }
@@ -100,7 +100,7 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
     }
   },
   geometryToLayer(geojson, options) {
-    var geometry = geojson.type === 'Feature' ? geojson.geometry : geojson,
+    let geometry = geojson.type === 'Feature' ? geojson.geometry : geojson,
       coords = geometry ? geometry.coordinates : null,
       layers = [],
       pointToLayer = options && options.pointToLayer,
@@ -135,7 +135,7 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
 
       case 'GeometryCollection':
         for (i = 0, len = geometry.geometries.length; i < len; i++) {
-          var layer = this.geometryToLayer({
+          let layer = this.geometryToLayer({
             geometry: geometry.geometries[i],
             type: 'Feature',
             properties: geojson.properties
@@ -152,9 +152,9 @@ L.LoadGeoJSON = L.FeatureGroup.extend({
     }
   },
   coordsToLatLngs(coords, levelsDeep, _coordsToLatLng) {
-    var latlngs = [];
+    let latlngs = [];
 
-    for (var i = 0, len = coords.length, latlng; i < len; i++) {
+    for (let i = 0, len = coords.length, latlng; i < len; i++) {
       latlng = levelsDeep ?
         this.coordsToLatLngs(coords[i], levelsDeep - 1, _coordsToLatLng) :
         (_coordsToLatLng || this.coordsToLatLng)(coords[i]);

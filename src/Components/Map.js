@@ -33,6 +33,27 @@ const fieldsMapping = {
   }
 };
 
+class DetailsMap extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const item = this.props.data.data.items[0],
+      map = this.props.map;
+
+    return(
+      <div>
+        <div className={'head-title'}>{item.title[0]}</div>
+        <div className={'list-layers'}>
+          <Layers map={map} {...this.props}/>
+        </div>
+      </div>
+    )
+  }
+
+}
+
 class LMap extends React.Component {
 
   constructor(props) {
@@ -59,7 +80,7 @@ class LMap extends React.Component {
     .then(data => this.propertyLayer(this.state.map, {data}))
   }
 
-  propertyLayer(map, data, e) {
+  propertyLayer(map, data, e, that) {
     let popupData = {
         fields: {},
         data:{},
@@ -78,6 +99,9 @@ class LMap extends React.Component {
       };
 
       const newLeayer =  L.geoJson(shape, {type:'property-layer', key:'property-layer-' + data.data.items[0].id});
+
+
+      newLeayer.bindPopup('<div id="l-map-popup">THIS IS POPUP !!!</div>');
 
       // Remove current property layer if needed.
       map.eachLayer(function (layer) {
@@ -131,15 +155,24 @@ class LMap extends React.Component {
       if (!layerExist) {
         renderPopup(data, e);
         newLeayer.addTo(map);
+        map.eachLayer(function (layer) {
+          if ('options' in layer && 'options' in newLeayer &&  layer.options.type ===  'property-layer') {
+            layer.openPopup();
+            if (layer.isPopupOpen()) {
+              ReactDOM.render(<DetailsMap data={data} map={map} {...that.props}/>, document.getElementById('l-map-popup'));
+            }
+          }
+        });
       }
     }
   }
 
   componentDidMount() {
-    this.map(this.propertyLayer);
+    const that = this;
+    this.map(that);
   }
 
-  map(plInit) {
+  map(that) {
     const map = L.map('map');
 
     this.setState({
@@ -152,7 +185,7 @@ class LMap extends React.Component {
 
       fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
         .then(results => results.json())
-        .then(data => plInit(this, {data}, e));
+        .then(data => that.propertyLayer(this, {data}, e, that));
     });
 
     const baseUrl = process.env.NODE_ENV === 'development' ? process.env.REACT_APP_LOCAL_SETTINGS_URL : process.env.REACT_APP_SETTINGS_URL;
