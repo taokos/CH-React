@@ -36,6 +36,8 @@ class SearchResults extends Component {
       this.state.matchedResults.items.map((result) => {
         pieces = result.doc.path.split('/').filter(item => item !== '' && item !== result.doc.id);
         breadcrumbs += ',' + pieces;
+
+        return breadcrumbs;
       });
 
       const request = API
@@ -56,9 +58,6 @@ class SearchResults extends Component {
     if (typeof data.items === 'undefined') {
       data.items = [];
     }
-    if (this.state.pieces.length < 1) {
-      return '';
-    }
 
     for (let i in data.items) {
       let path = data.items[i].doc.path.split('/').filter(item => item !== '');
@@ -67,13 +66,13 @@ class SearchResults extends Component {
           path[key] = (<a key={'link-'+ key} href={'#' + this.state.pieces[path[key]].path.split('/').join('\\')}>{this.state.pieces[path[key]].text}</a>);
         }
         else {
-          delete path[key];
+          path.splice(key, 1);
         }
       }
 
       // Hasn't parents.
       if (path.length <= 1) {
-        data.items[i].doc.breadcrumbs = (<a key={'link-'+ 1} href={'#' + data.items[i].doc.id}>{data.items[i].doc.text}</a>);
+        data.items[i].doc.breadcrumbs = [(<a key={'link-'+ 1} href={'#' + data.items[i].doc.id}>{data.items[i].doc.text}</a>)];
       }
       // Has parents.
       else {
@@ -83,7 +82,7 @@ class SearchResults extends Component {
 
     return data.items.map((result, i) =>
       <div key={'result-'+i}>
-        <div className="title">{result.doc.breadcrumbs[1]}</div>
+        <div className="title">{result.doc.breadcrumbs[0]}</div>
         <div className="breadcrumbs">{result.doc.breadcrumbs}</div>
         <div className="matches" data-value={result.doc.path.replace('/', '\\')} key={i} dangerouslySetInnerHTML={{__html: result.highlight.text}} />
       </div>
