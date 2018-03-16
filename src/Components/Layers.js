@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import L from 'leaflet';
 import LayersCheckbox from './Elements/LayersCheckbox';
 import _ from 'underscore';
-import LoadGeoJSON from "./Elements/GeoJSONLayer";
+
 
 const colors = [
   "#db4c4c",
@@ -16,17 +16,15 @@ const colors = [
   "#db4cb7"
 ],
   tailLaers = [
-  {title:"Parcel Lines", urlTemplate:'//st1-tiles.gridics.com/property_records_parcel_lines/{z}/{x}/{y}.png'},
-  {title:"Future Land Use", urlTemplate:'//st1-tiles.gridics.com/land_use_future_land_use/{z}/{x}/{y}.png'},
-  {title:"Zoning Code", urlTemplate:'//st1-tiles.gridics.com/land_use_zoning_code/{z}/{x}/{y}.png'},
-  {title:"Zoning Overlay", urlTemplate:'//st1-tiles.gridics.com/land_use_zoning_overlay/{z}/{x}/{y}.png'},
-];
+    {title:"Parcel Lines", urlTemplate:'//st1-tiles.gridics.com/property_records_parcel_lines/{z}/{x}/{y}.png'},
+    {title:"Future Land Use", urlTemplate:'//st1-tiles.gridics.com/land_use_future_land_use/{z}/{x}/{y}.png'},
+    {title:"Zoning Code", urlTemplate:'//st1-tiles.gridics.com/land_use_zoning_code/{z}/{x}/{y}.png'},
+    {title:"Zoning Overlay", urlTemplate:'//st1-tiles.gridics.com/land_use_zoning_overlay/{z}/{x}/{y}.png'},
+  ];
 
 
 let groupedOverlays = {
   "Layers": {},
-  "Land Use": {},
-  "Place": {}
 };
 
 tailLaers.map((layer) => {
@@ -38,7 +36,7 @@ class GroupLayers extends Component {
 
   constructor(props) {
     super(props);
-    var checkedLayers = {};
+    let checkedLayers = {};
     Object.keys(props.layers).forEach(function (val) {
       checkedLayers[val] = false;
     });
@@ -74,7 +72,7 @@ class GroupLayers extends Component {
 
   // Control all checkboxes states.
   checkBoxChange(e, name, value) {
-    var checkedLayers = this.state.checkedLayers;
+    let checkedLayers = this.state.checkedLayers;
     checkedLayers[name] = value;
     this.countChecked(true);
     this.setState({checkedLayers: checkedLayers});
@@ -169,26 +167,24 @@ class Layers extends Component {
     .then(data => saveLayers(data, that));
 
     function saveLayers(data, that) {
-      if ('land_use' in data) {
-        Object.keys(data).map(group => {
-          data[group].layers.map((layer, i) => {
-            const options = {
-              color: colors[i % colors.length],
-              weight: 2,
-              fillOpacity: 0.15,
-              opacity: 0.7
-            };
-            const apiUrl = process.env.REACT_APP_MAP_SHAPE_URL + data[group].layer_type + '=' + layer.layer_id;
-            if (data[group].layer_type === 'land_use') {
-              groupedOverlays["Land Use"][layer.layer_title] = LoadGeoJSON(apiUrl, options);
-            }
-            else {
-              groupedOverlays["Place"][layer.layer_title] = LoadGeoJSON(apiUrl, options);
-            }
-          })
-        });
-        that.setState({layers: true});
-      }
+      _.mapObject(data, function(group, id) {
+        _.mapObject(group['layers'], function(layer, i) {
+          const options = {
+            color: colors[i % colors.length],
+            weight: 2,
+            fillOpacity: 0.15,
+            opacity: 0.7
+          };
+
+          const apiUrl = process.env.REACT_APP_MAP_SHAPE_URL + layer.layer_type + '=' + layer.layer_id;
+
+          if (!(group['group'] in groupedOverlays)) {
+            groupedOverlays[group['group']] = {};
+          }
+          groupedOverlays[group['group']][layer.layer_title] = {apiUrl, options};
+        })
+      });
+      that.setState({layers: true});
     }
   }
 
@@ -210,6 +206,14 @@ class Layers extends Component {
     const {reset} = this.state;
     const map = this.props.map;
     const hideClass = this.props.showLayers ? '' : ' hide';
+
+    if ('detailsPopup' in this.props) {
+      return (
+        <div className="overlay-layers">
+          <GroupLayers map={map} name={'Layers'} layers={groupedOverlays['Layers']}/>
+        </div>
+      )
+    }
 
     if (this.state.layers) {
       return (

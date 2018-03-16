@@ -1,13 +1,21 @@
 import React, {Component} from 'react';
+import LoadGeoJSON from "./GeoJSONLayer";
 
 export default class LayersCheckbox extends Component {
 
   constructor(props) {
     super(props);
+    let added = props.layer;
+    if (('apiUrl' in props.layer)) {
+      added = false;
+    }
     this.state = {
       isToggleOn: false,
-      added: props.layer
+      added: added,
+      layerData: props.layer
     };
+
+    this.isToggleOn = false;
 
     // This binding is necessary to make `this` work in the callback
     this.handleChange = this.handleChange.bind(this);
@@ -20,19 +28,30 @@ export default class LayersCheckbox extends Component {
   }
 
   switchCheckbox(newState) {
-    if (newState) {
-      const added = this.state.added.addTo(this.props.map);
+    if (newState && !this.isToggleOn) {
+      let layer = this.state.added;
+      if (!layer) {
+        layer = LoadGeoJSON(this.props.layer.apiUrl, this.props.layer.options);
+      }
+      const added = layer.addTo(this.props.map);
       this.setState({
-        added: added
+        added: added,
+        isToggleOn: newState
       });
+      this.isToggleOn = true;
     }
     else {
-      this.state.added.remove();
+      if (this.state.added) {
+        this.state.added.remove();
+      }
+      this.isToggleOn = false;
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    this.switchCheckbox(nextProps.checked);
+    if (nextProps.checked !== this.isToggleOn) {
+      this.switchCheckbox(nextProps.checked);
+    }
   }
 
   render() {
