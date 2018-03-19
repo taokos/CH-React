@@ -9,7 +9,7 @@ import _ from 'underscore';
 
 const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=10&offset=0&ignoreStatus=&indent=&';
 
-let address = '', googleApiKey = '';
+let address = '', googleApiKey = '', checkedLayers={};
 
 const fieldsMapping = {
   'Property Information': {
@@ -36,17 +36,31 @@ const fieldsMapping = {
 class DetailsMap extends React.Component {
   constructor(props) {
     super(props);
+   
+    this.state = {
+      activeLayers: {}
+    }
+  }
+  
+  saveLayersSate(layers) {
+    checkedLayers[layers.group] = layers.layers;
   }
 
   render() {
     const item = this.props.data.data.items[0],
       map = this.props.map;
-
+    console.log(checkedLayers);
     return(
       <div>
         <div className={'head-title'}>{item.title[0]}</div>
         <div className={'list-layers'}>
-          <Layers map={map} {...this.props}/>
+          <Layers
+            map={map}
+            {...this.props}
+            DetailsPopupL={1}
+            saveLayersSate={this.saveLayersSate.bind(this)}
+            activeLayers={checkedLayers}
+          />
         </div>
       </div>
     )
@@ -66,6 +80,10 @@ class LMap extends React.Component {
       mapData: {},
       layerExist: true,
     };
+  }
+  
+  saveLayersSate(layers) {
+    checkedLayers[layers.group] = layers.layers;
   }
 
   prepareFieldsRequest(fieldsKey) {
@@ -101,7 +119,7 @@ class LMap extends React.Component {
       const newLeayer =  L.geoJson(shape, {type:'property-layer', key:'property-layer-' + data.data.items[0].id});
 
 
-      newLeayer.bindPopup('<div id="l-map-popup">THIS IS POPUP !!!</div>');
+      newLeayer.bindPopup('<div id="l-map-popup"></div>');
 
       // Remove current property layer if needed.
       map.eachLayer(function (layer) {
@@ -201,16 +219,18 @@ class LMap extends React.Component {
       .then(data => setMapOptions(data));
 
     function setMapOptions(data) {
-      const StateBounds = new L.LatLngBounds(
-        new L.LatLng(data['bounds'][0][0], data['bounds'][0][1]),
-        new L.LatLng(data['bounds'][1][0], data['bounds'][1][1])
-      );
-      address = data['address'];
-      googleApiKey = data['google_api_key'];
-      let zoom = map.getBoundsZoom(StateBounds, false);
-      map.options.minZoom = zoom;
-      map.setView([data['center'][0], data['center'][1]], zoom);
-      map.setMaxBounds(StateBounds);
+      if ('bounds' in data) {
+        const StateBounds = new L.LatLngBounds(
+          new L.LatLng(data['bounds'][0][0], data['bounds'][0][1]),
+          new L.LatLng(data['bounds'][1][0], data['bounds'][1][1])
+        );
+        address = data['address'];
+        googleApiKey = data['google_api_key'];
+        let zoom = map.getBoundsZoom(StateBounds, false);
+        map.options.minZoom = zoom;
+        map.setView([data['center'][0], data['center'][1]], zoom);
+        map.setMaxBounds(StateBounds);
+      }
     }
 
     this.setState({
@@ -227,6 +247,8 @@ class LMap extends React.Component {
           match = {this.props.match}
           toggleLink={this.props.toggleLink}
           map={this.state.map}
+          saveLayersSate={this.saveLayersSate.bind(this)}
+          activeLayers={checkedLayers}
           showLayers={this.props.showLayers} />;
       baseLayer = <BaseLayer map={this.state.map} />;
     }
