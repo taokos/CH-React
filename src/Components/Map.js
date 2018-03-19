@@ -35,14 +35,26 @@ const fieldsMapping = {
 
 class ActiveChecboxes extends React.Component {
   render() {
+
     return (
       <div>
-      {_.values(_.mapObject(checkedLayers, function(grop, title) {
-        {
-          <div>
-            {title}
+      {_.values(_.mapObject(checkedLayers, function(grop, title) { let failter = false;
+        {_.values(_.mapObject(grop, function(status, filter) {
+          if(status) {
+            failter = true;
+          }
+        }))};
+        if (failter) {
+        return(
+          <div key={title}>{title}
+            {_.values(_.mapObject(grop, function(status, filter) {
+              if(status) return(
+                <div>{filter}</div>
+              );
+              else return('')
+            }))}
           </div>
-        }
+        )} else {return('')}
       }))}
       </div>
     )
