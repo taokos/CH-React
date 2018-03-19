@@ -48,7 +48,7 @@ class GroupLayers extends Component {
       collapsed: true,
       checkedLayers: checkedLayers
     };
-    
+
     this.props.sl({group:this.props.name ,layers:checkedLayers});
   }
 
@@ -81,7 +81,7 @@ class GroupLayers extends Component {
     checkedLayers[name] = value;
     this.countChecked(true);
     this.setState({checkedLayers: checkedLayers});
-    this.props.sl({name:checkedLayers});
+    this.props.sl({group:this.props.name ,layers:checkedLayers});
   }
 
   // Check/uncheck all checkboxes.
@@ -151,7 +151,9 @@ class Layers extends Component {
     super(props);
 
     this.close = this.close.bind(this);
-
+    if (!_.isEmpty(this.props.activeLayers)) {
+      this.state = this.props.activeLayers
+    }
     this.state = {
       reset: false,
       layers: false
@@ -181,7 +183,7 @@ class Layers extends Component {
             fillOpacity: 0.15,
             opacity: 0.7
           };
-          
+
           const apiUrl = process.env.REACT_APP_MAP_SHAPE_URL + group.group_l_type + '=' + layer.layer_id;
 
           if (!(group['group'] in groupedOverlays)) {
