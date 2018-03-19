@@ -35,7 +35,6 @@ const fieldsMapping = {
 
 class ActiveChecboxes extends React.Component {
   render() {
-
     return (
       <div>
       {_.values(_.mapObject(checkedLayers, function(grop, title) { let failter = false;
@@ -66,8 +65,14 @@ class DetailsMap extends React.Component {
     super(props);
 
     this.state = {
-      activeLayers: {}
+      activeLayers: {},
+      settings:{}
     };
+    let settings = {};
+    settings[this.props.layer._leaflet_id] = this.props;
+    if ('layer' in this.props) {
+      this.setState({settings:settings});
+    }
     this.showPropertyDetails = this.showPropertyDetails.bind(this);
   }
 
@@ -221,21 +226,26 @@ class LMap extends React.Component {
         if (e) {
           popupData['lng'] = e.latlng.lng;
           popupData['lat'] = e.latlng.lat;
-          map.setView(new L.LatLng(e.latlng.lat, e.latlng.lng), 17);
         }
         else if ('data' in data && 'items' in data.data && data.data.items[0] && 'gisData' in data.data.items[0] && 'geom' in data.data.items[0].gisData) {
           const lngLan = data.data.items[0].gisData.geom.coordinates[0][0];
-          map.setView(new L.LatLng(lngLan[1], lngLan[0]), 17);
           popupData['lng'] = lngLan[0];
           popupData['lat'] = lngLan[1];
         }
         newLeayer.addTo(map);
+        map.fitBounds(newLeayer.getBounds());
         map.eachLayer(function (layer) {
           if ('options' in layer && 'options' in newLeayer &&  layer.options.type ===  'property-layer') {
             layer.openPopup();
             if (typeof that !== 'undefined' && layer.isPopupOpen() && 'props' in that && !_.isEmpty(e)) {
-
-             ReactDOM.render(<DetailsMap data={data} e={e} map={map} renderPopup={renderPopup} saveLayersState={that.saveLayersSate} {...that.props}/>, document.getElementById('l-map-popup'));
+              ReactDOM.render(<DetailsMap
+                layer={layer}
+                data={data}
+                e={e}
+                map={map}
+                renderPopup={renderPopup}
+                saveLayersState={that.saveLayersSate}
+                {...that.props}/>, document.getElementById('l-map-popup'));
             }
           }
         });
