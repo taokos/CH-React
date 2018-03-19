@@ -3,7 +3,7 @@ import SearchBox from './SearchBox';
 import TreeView from 'react-simple-jstree';
 import $ from 'jquery';
 
-const apiURL = 'https://local-codehub.gridics.com/api/v1/codehub/0';
+const apiURL = process.env.REACT_APP_SETTINGS_URL + '/api/v1/codehub/0';
 
 class Doc extends Component {
 
@@ -51,8 +51,7 @@ class Doc extends Component {
             }
           },
           check_callback: true
-        },
-        // plugins: ['checkbox']
+        }
       },
       selected: [],
       details: '',
@@ -64,7 +63,7 @@ class Doc extends Component {
     let chDoc = this;
     $(this.treeContainer)
       .on('loaded.jstree', function(e, data) {
-        // invoked after jstree has loaded
+        // Invoked after jstree has loaded.
         chDoc.openTreeByPath(window.location.hash);
       })
       .on('select_node.jstree', function (e, data) {
@@ -91,13 +90,13 @@ class Doc extends Component {
   // Track change hash event.
   trackHash () {
     let chDoc = this;
-    // does the browser support the hashchange event?
+    // Does the browser support the hashchange event?
     if ("onhashchange" in window) {
       window.onhashchange = function () {
         chDoc.openTreeByPath(window.location.hash);
       };
     }
-    // event not supported.
+    // Event not supported.
     else {
       let storedHash = window.location.hash;
       window.setInterval(function () {
@@ -127,7 +126,7 @@ class Doc extends Component {
             i++;
           }
           else {
-            // "exit" the interval loop with clearInterval command
+            // Exit the interval loop with clearInterval command.
             clearInterval(interval_id);
           }
         }
