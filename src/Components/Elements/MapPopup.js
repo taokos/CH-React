@@ -104,7 +104,7 @@ class MapPopup extends React.Component {
                           if (value !== '' && key in item) {
                             i++;
                             return (
-                              <div key={'field-' + key} className={'item ' + (i % 2 == 0 ? 'even' : 'odd')}>
+                              <div key={'field-' + key} className={'item ' + (i % 2 === 0 ? 'even' : 'odd')}>
                                 <span className="lbl">{value}:</span>
                                 <span className="value">{item[key]}</span>
                               </div>
@@ -118,7 +118,7 @@ class MapPopup extends React.Component {
               }
             </div>
           </div>
-          <div className={"zoning-tab tab"  + (activeTab == 'zoning' ? '' : ' hide')}>
+          <div className={"zoning-tab tab"  + (activeTab === 'zoning' ? '' : ' hide')}>
             <div className="building-scenario">
               <div className="title">Building Scenario</div>
               <a className="btn" target="_blank" href={process.env.REACT_APP_GRIDICS + item.title_uri}>Learn More</a>

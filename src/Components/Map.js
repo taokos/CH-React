@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import ReactDOM from 'react-dom';
 import L from 'leaflet';
 import Layers from './Layers.js';
@@ -33,33 +33,61 @@ const fieldsMapping = {
   }
 };
 
+class ActiveChecboxes extends React.Component {
+  render() {
+    return (
+      <div>
+      {_.values(_.mapObject(checkedLayers, function(grop, title) {
+        {
+          <div>
+            {title}
+          </div>
+        }
+      }))}
+      </div>
+    )
+  }
+}
+
 class DetailsMap extends React.Component {
   constructor(props) {
     super(props);
-   
+
     this.state = {
       activeLayers: {}
+    };
+    this.showPropertyDetails = this.showPropertyDetails.bind(this);
+  }
+
+  saveLayersSate(layers) {
+    if (typeof layers !== 'undefined' && 'saveState' in this.props) {
+      this.props.saveLayersState(layers);
     }
   }
-  
-  saveLayersSate(layers) {
-    checkedLayers[layers.group] = layers.layers;
+
+  showPropertyDetails() {
+    this.props.renderPopup(this.props.data, this.props.e)
   }
 
   render() {
     const item = this.props.data.data.items[0],
       map = this.props.map;
-    console.log(checkedLayers);
     return(
       <div>
-        <div className={'head-title'}>{item.title[0]}</div>
+        <div className={'head-title'} onClick={this.showPropertyDetails}>{item.title[0]} </div>
+        <div className={'list-active-layers'}>
+          <span>Activaded Layers</span>
+          <ActiveChecboxes />
+        </div>
         <div className={'list-layers'}>
+          <span>All Applicable Layers</span>
           <Layers
             map={map}
             {...this.props}
             DetailsPopupL={1}
             saveLayersSate={this.saveLayersSate.bind(this)}
             activeLayers={checkedLayers}
+            showLayers={this.props.showLayers}
           />
         </div>
       </div>
@@ -79,12 +107,17 @@ class LMap extends React.Component {
       baseLayers: {},
       mapData: {},
       layerExist: true,
+      layers: {}
     };
   }
-  
+
   saveLayersSate(layers) {
-    checkedLayers[layers.group] = layers.layers;
+    if (typeof layers !== 'undefined') {
+      checkedLayers[layers.group] = layers.layers;
+      this.setState({layers: checkedLayers})
+    }
   }
+
 
   prepareFieldsRequest(fieldsKey) {
     return _.values(_.mapObject(fieldsMapping[fieldsKey], (val, key) => 'fields[]=' + key + '&')).join('')
@@ -96,6 +129,9 @@ class LMap extends React.Component {
     fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'address=' + key + '&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
     .then(results => results.json())
     .then(data => this.propertyLayer(this.state.map, {data}))
+    .catch(function (e) {
+      console.error(e);
+    });
   }
 
   propertyLayer(map, data, e, that) {
@@ -117,7 +153,6 @@ class LMap extends React.Component {
       };
 
       const newLeayer =  L.geoJson(shape, {type:'property-layer', key:'property-layer-' + data.data.items[0].id});
-
 
       newLeayer.bindPopup('<div id="l-map-popup"></div>');
 
@@ -171,13 +206,24 @@ class LMap extends React.Component {
 
       // If new layer was added update popup.
       if (!layerExist) {
-        renderPopup(data, e);
+        if (e) {
+          popupData['lng'] = e.latlng.lng;
+          popupData['lat'] = e.latlng.lat;
+          map.setView(new L.LatLng(e.latlng.lat, e.latlng.lng), 17);
+        }
+        else if ('data' in data && 'items' in data.data && data.data.items[0] && 'gisData' in data.data.items[0] && 'geom' in data.data.items[0].gisData) {
+          const lngLan = data.data.items[0].gisData.geom.coordinates[0][0];
+          map.setView(new L.LatLng(lngLan[1], lngLan[0]), 17);
+          popupData['lng'] = lngLan[0];
+          popupData['lat'] = lngLan[1];
+        }
         newLeayer.addTo(map);
         map.eachLayer(function (layer) {
           if ('options' in layer && 'options' in newLeayer &&  layer.options.type ===  'property-layer') {
             layer.openPopup();
-            if (layer.isPopupOpen()) {
-              ReactDOM.render(<DetailsMap data={data} map={map} {...that.props}/>, document.getElementById('l-map-popup'));
+            if (typeof that !== 'undefined' && layer.isPopupOpen() && 'props' in that && !_.isEmpty(e)) {
+
+             ReactDOM.render(<DetailsMap data={data} e={e} map={map} renderPopup={renderPopup} saveLayersState={that.saveLayersSate} {...that.props}/>, document.getElementById('l-map-popup'));
             }
           }
         });
@@ -203,7 +249,10 @@ class LMap extends React.Component {
 
       fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
         .then(results => results.json())
-        .then(data => that.propertyLayer(this, {data}, e, that));
+        .then(data => that.propertyLayer(this, {data}, e, that))
+        .catch(function (e) {
+          console.error(e);
+        });
     });
 
     const baseUrl = process.env.NODE_ENV === 'development' ? process.env.REACT_APP_LOCAL_SETTINGS_URL : process.env.REACT_APP_SETTINGS_URL;
@@ -216,7 +265,10 @@ class LMap extends React.Component {
 
     fetch(requestUrl)
       .then(results => results.json())
-      .then(data => setMapOptions(data));
+      .then(data => setMapOptions(data))
+      .catch(function (e) {
+        console.error(e);
+      });
 
     function setMapOptions(data) {
       if ('bounds' in data) {
