@@ -16,7 +16,7 @@ class MapSearch extends React.Component {
     this.state = {
       options: [],
       value: '',
-      places: []
+      places: [],
     };
   };
 
@@ -66,7 +66,6 @@ class MapSearch extends React.Component {
       <div className="map-search-box">
         <div className="search-box">
           <input type={'text'}
-             onBlur={this.handleBlur}
              onFocus={this.searchKeyPress}
              onKeyUp={this.searchKeyPress} />
           <button className="search"><i className="icon-b icon-b-ic-search-grey-big"></i></button>
