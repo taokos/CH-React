@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-const API = '/api/v1/codehub/0';
+const API = process.env.REACT_APP_SETTINGS_URL + '/api/v1/codehub/0';
 
 class SearchResults extends Component {
   constructor(props) {
@@ -25,7 +25,10 @@ class SearchResults extends Component {
       fetch(requestUrl)
         .then(results => results.json())
         .then(data => this.setState({matchedResults: data}))
-        .then(data => this.getParents());
+        .then(data => this.getParents())
+        .catch((e) => {
+          console.log(e);
+        });
     }
   }
 
@@ -81,7 +84,7 @@ class SearchResults extends Component {
     }
 
     return data.items.map((result, i) =>
-      <div key={'result-'+i}>
+      <div key={'result-'+i} className="row">
         <div className="title">{result.doc.breadcrumbs[0]}</div>
         <div className="breadcrumbs">{result.doc.breadcrumbs}</div>
         <div className="matches" data-value={result.doc.path.replace('/', '\\')} key={i} dangerouslySetInnerHTML={{__html: result.highlight.text}} />
@@ -106,7 +109,9 @@ class SearchResults extends Component {
           <div className="ch-total-results">That search
             returned {maybePluralize(matchedResults.total, 'result')}.
           </div>
-          {this.prepareResults(matchedResults)}
+          <div className="results">
+            {this.prepareResults(matchedResults)}
+          </div>
         </div>
       </div>
     );

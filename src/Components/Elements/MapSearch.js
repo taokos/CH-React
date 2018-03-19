@@ -16,7 +16,7 @@ class MapSearch extends React.Component {
     this.state = {
       options: [],
       value: '',
-      places: []
+      places: [],
     };
   };
 

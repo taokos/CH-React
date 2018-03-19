@@ -2,7 +2,9 @@ import React, {Component} from 'react';
 import SearchBox from './SearchBox';
 import TreeView from 'react-simple-jstree';
 import $ from 'jquery';
+import HtmlToReact from 'html-to-react';
 
+const htmlToReactParser = new HtmlToReact.Parser(React);
 const apiURL = process.env.REACT_APP_SETTINGS_URL + '/api/v1/codehub/0';
 
 class Doc extends Component {
@@ -139,16 +141,7 @@ class Doc extends Component {
     let text = [];
     if (objNode.text) {
       // Add with share link.
-      text.push(
-        <div key={'s-' + objNode.id}>
-          <strong>{objNode.text}</strong>
-          <span
-            className="share"
-            onClick={this.bindShareClick.bind(this)}
-            data-id={objNode.id}
-          >Share
-          </span><br />
-        </div>);
+      text.push('<div><strong>' + objNode.text + '</strong><span class="share" data-id="'+objNode.id+'">Share</span><br /></div>');
     }
     if (objNode && objNode.children && objNode.children.length > 0) {
       this.getTextRecursively(data, objNode.children, text);
@@ -197,23 +190,16 @@ class Doc extends Component {
       else if (child.text) {
         // Process image.
         if (child.li_attr && image.indexOf(child.li_attr.dataTag) !== -1) {
-          text.push(<img src={child.text} />);
+          text.push('<img src="' + child.text + '"' + '>');
         }
         // Regular text.
         else {
           if (child.li_attr && (child.li_attr.dataTag === 'subsection' || child.li_attr.dataTag === 'section')) {
             // Add with share link.
-            text.push(
-              <p key={'s-' + child.id} className="bold">{child.text}
-                <span
-                  className="share"
-                  onClick={elDoc.bindShareClick.bind(elDoc)}
-                  data-id={child.id}>Share
-                </span>
-              </p>);
+            text.push('<p class="bold">' + child.text + '<span class="share" data-id="'+child.id+'">Share</span></p>');
           }
           else {
-            text.push(<p dangerouslySetInnerHTML={{__html: child.text}} />);
+            text.push('<p>' + child.text + '</p>');
           }
         }
       }
@@ -237,19 +223,59 @@ class Doc extends Component {
   }
 
   render() {
+    const processNodeDefinitions = new HtmlToReact.ProcessNodeDefinitions(React);
+    const processingInstructions = [
+      {
+        // Custom <h1> processing
+        shouldProcessNode: function(node) {
+          return node.parent && node.parent.name
+            && node.parent.name === 'span'
+            && node.parent.attribs
+            && node.parent.attribs.class
+            && node.parent.attribs.class == 'share'
+            ;
+        },
+        processNode: (node, children) => {
+          let el =  React.createElement('a', {
+              'href': '#share',
+              'onClick': this.bindShareClick.bind(this),
+              'data-id': node.parent.attribs['data-id']
+            }, 'Share');
+          return el;
+        }
+      }, {
+        // Anything else
+        shouldProcessNode: function(node) {
+          return true;
+        },
+        processNode: processNodeDefinitions.processDefaultNode
+      }];
     const data = this.state.data;
+    const details = this.state.details ? this.state.details.join('') : '';
+    const isValidNode = function() {
+      return true;
+    };
+    let reactComponent = ''
+    if (details) {
+      reactComponent = htmlToReactParser.parseWithInstructions(details, isValidNode, processingInstructions);
+    }
+
     return (
       <div className="ch-doc">
         <SearchBox history={this.props.history} match={this.props.match}/>
-        <div id="json-view" className="view-page jstree">
-          <TreeView
-            ref={(el) => {el ? this.treeContainer = el.treeContainer : '';}}
-            treeData={data}
-            onChange={(e, data) => this.handleChange(e, data)}
-          />
-        </div>
-        <div key={new Date().getTime()} id="view-body">
-          <div id="view-details">{this.state.details}</div>
+        <div className="tree">
+          <div id="json-view" className="view-page jstree">
+            <TreeView
+              ref={(el) => {el ? this.treeContainer = el.treeContainer : '';}}
+              treeData={data}
+              onChange={(e, data) => this.handleChange(e, data)}
+            />
+          </div>
+          <div key={new Date().getTime()} id="view-body" className="view-body">
+            <div id="view-details" className="view-details">
+              {reactComponent}
+            </div>
+          </div>
         </div>
       </div>
     );
