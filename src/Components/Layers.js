@@ -40,11 +40,16 @@ class GroupLayers extends Component {
     Object.keys(props.layers).forEach(function (val) {
       checkedLayers[val] = false;
     });
+    if (typeof this.props.activeLayers !== 'undefined') {
+      checkedLayers = checkedLayers !== this.props.activeLayers ? this.props.activeLayers : checkedLayers;
+    }
     this.state = {
       ckeckAll: false,
       collapsed: true,
       checkedLayers: checkedLayers
     };
+    
+    this.props.sl({group:this.props.name ,layers:checkedLayers});
   }
 
   countChecked(update = false) {
@@ -76,6 +81,7 @@ class GroupLayers extends Component {
     checkedLayers[name] = value;
     this.countChecked(true);
     this.setState({checkedLayers: checkedLayers});
+    this.props.sl({name:checkedLayers});
   }
 
   // Check/uncheck all checkboxes.
@@ -175,8 +181,8 @@ class Layers extends Component {
             fillOpacity: 0.15,
             opacity: 0.7
           };
-
-          const apiUrl = process.env.REACT_APP_MAP_SHAPE_URL + layer.layer_type + '=' + layer.layer_id;
+          
+          const apiUrl = process.env.REACT_APP_MAP_SHAPE_URL + group.group_l_type + '=' + layer.layer_id;
 
           if (!(group['group'] in groupedOverlays)) {
             groupedOverlays[group['group']] = {};
@@ -206,6 +212,30 @@ class Layers extends Component {
     const {reset} = this.state;
     const map = this.props.map;
     const hideClass = this.props.showLayers ? '' : ' hide';
+    const saveLayersSate = this.props.saveLayersSate;
+    const activeLayers=this.props.activeLayers;
+    if (this.props.DetailsPopupL) {
+      return (
+        <div className={"layers"}>
+          <div className="groups-wrapper layers-wrapper">
+            <div className="overlays">
+              {Object.keys(groupedOverlays).map(function (layer, i) {
+                return (
+                  <GroupLayers
+                    key={'group-layers-' + i}
+                    sl={saveLayersSate}
+                    map={map}
+                    name={layer}
+                    activeLayers={activeLayers[layer]}
+                    layers={groupedOverlays[layer]}
+                    reset={reset} />
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     if (this.state.layers) {
       return (
@@ -221,7 +251,14 @@ class Layers extends Component {
               {/*<BaseLayers map={map} />*/}
               {Object.keys(groupedOverlays).map(function (layer, i) {
                 return (
-                  <GroupLayers key={'group-layers-' + i} map={map} name={layer} layers={groupedOverlays[layer]} reset={reset} />
+                  <GroupLayers
+                    key={'group-layers-' + i}
+                    sl={saveLayersSate}
+                    map={map}
+                    name={layer}
+                    activeLayers={activeLayers[layer]}
+                    layers={groupedOverlays[layer]}
+                    reset={reset} />
                 );
               })}
             </div>
