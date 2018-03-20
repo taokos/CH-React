@@ -107,41 +107,62 @@ class GroupLayers extends Component {
   }
 
   render() {
-    const {map, layers} = this.props;
+    let {map, layers} = this.props;
     const checkedLayers = this.state.checkedLayers;
     const that = this;
     const checkAllModifier = this.countChecked();
-    return (
-      <div className={"collapsible-group layers-group" + (this.state.collapsed ? ' collapsed' : '')}>
-        <div className="group-name">
-          <div className={"checkbox" + ((checkAllModifier === 2) ? ' not-all': '')}>
-            <label>
-              <input type="checkbox" onChange={this.checkUncheckAll.bind(this)} checked={this.state.ckeckAll} className={"check-all"} />
-              <span></span>
-            </label>
-          </div>
-          <span className="name toggler" onClick={this.collapse.bind(this)}>
+    const DetailsPopupL = this.props.DetailsPopupL;
+    if (typeof DetailsPopupL !== 'undefined' && !('Parcel Lines' in layers)) {
+      let newLayers = {};
+      for (const layer in layers) {
+        const args = Object.values(layers[layer]);
+        if (DetailsPopupL.indexOf(parseInt(args[2])) !== -1) {
+          newLayers[layer] = layers[layer];
+        }
+      }
+      layers = newLayers;
+    }
+    if (typeof DetailsPopupL === 'undefined' || 'Parcel Lines' in layers || typeof DetailsPopupL !== 'undefined' && Object.keys(layers).length > 0) {
+      return (
+        <div
+          className={"collapsible-group layers-group" + (this.state.collapsed ? ' collapsed' : '')}>
+          <div className="group-name">
+            <div
+              className={"checkbox" + ((checkAllModifier === 2) ? ' not-all' : '')}>
+              <label>
+                <input type="checkbox"
+                   onChange={this.checkUncheckAll.bind(this)}
+                   checked={this.state.ckeckAll} className={"check-all"}/>
+                <span></span>
+              </label>
+            </div>
+            <span className="name toggler" onClick={this.collapse.bind(this)}>
             {this.props.name}
-            {this.state.collapsed && <i className="icon-b icon-b-sortdown"></i>}
+              {this.state.collapsed &&
+              <i className="icon-b icon-b-sortdown"></i>}
           </span>
+          </div>
+          <div className="checkboxes collapsible">
+            {Object.keys(layers).map(function (name, i) {
+              return (
+                <LayersCheckbox
+                  checked={checkedLayers[name]}
+                  onChange={that.checkBoxChange.bind(that)}
+                  key={'layers-checkbox-' + i}
+                  map={map}
+                  id={name}
+                  layer={layers[name]}>
+                  {name}
+                </LayersCheckbox>
+              );
+            })}
+          </div>
         </div>
-        <div className="checkboxes collapsible">
-          {Object.keys(layers).map(function (name, i) {
-            return(
-              <LayersCheckbox
-                checked={checkedLayers[name]}
-                onChange={that.checkBoxChange.bind(that)}
-                key={'layers-checkbox-' + i}
-                map={map}
-                id={name}
-                layer={layers[name]}>
-                {name}
-              </LayersCheckbox>
-            );
-          })}
-        </div>
-      </div>
-    );
+      );
+    }
+    else {
+      return('');
+    }
   }
 }
 
@@ -185,11 +206,12 @@ class Layers extends Component {
           };
 
           const apiUrl = process.env.REACT_APP_MAP_SHAPE_URL + group.group_l_type + '=' + layer.layer_id;
+          const id = layer.layer_id;
 
           if (!(group['group'] in groupedOverlays)) {
             groupedOverlays[group['group']] = {};
           }
-          groupedOverlays[group['group']][layer.layer_title] = {apiUrl, options};
+          groupedOverlays[group['group']][layer.layer_title] = {apiUrl, options, id};
         })
       });
       that.setState({layers: true});
@@ -217,6 +239,7 @@ class Layers extends Component {
     const saveLayersSate = this.props.saveLayersSate;
     const activeLayers=this.props.activeLayers;
     if (this.props.DetailsPopupL) {
+      const DetailsPopupL = this.props.DetailsPopupL;
       return (
         <div className={"layers"}>
           <div className="groups-wrapper layers-wrapper">
@@ -230,6 +253,7 @@ class Layers extends Component {
                     name={layer}
                     activeLayers={activeLayers[layer]}
                     layers={groupedOverlays[layer]}
+                    DetailsPopupL={DetailsPopupL}
                     reset={reset} />
                 );
               })}
