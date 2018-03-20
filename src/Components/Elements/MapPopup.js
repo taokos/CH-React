@@ -62,13 +62,25 @@ class MapPopup extends React.Component {
       addressControl: false,
       zoom: 1
     };
+    const ItemTitle = ['title','city','state', 'postalCode'].map(function(el) {
+      if (el in item && item[el] !== null && item[el] !== '') {
+        el = item[el];
+        if (typeof el === 'object') {
+          el = el.join(', ');
+        }
+      }
+      else {
+        el = '';
+      }
+      return el;
+    }).filter(function(el) {return el !== '';}).join(', ');
 
     return (
       <div className="map-modal-wrapper left-overlay">
         <div className="head-title">
-          <h3>{item.title}</h3>
+          <h3>{ItemTitle}</h3>
           <button className="button-link close" onClick={() => this.onCloseClicked()}>
-            <i className="icon-b icon-b-close"></i>
+            <i className="icon-b icon-b-close" />
           </button>
         </div>
         <div className="tabs">

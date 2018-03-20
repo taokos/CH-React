@@ -7,7 +7,7 @@ import BaseLayer from './Elements/BaseLayer.js';
 import MapSearch from './Elements/MapSearch.js';
 import _ from 'underscore';
 
-const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=1&offset=0&ignoreStatus=&indent=&';
+const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=1&offset=0&ignoreStatus=&indent=&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN + '&';
 
 let address = '', googleApiKey = '', checkedLayers={};
 
@@ -181,7 +181,7 @@ class LMap extends React.Component {
   getPropertyLayer(key) {
     let fieldsRequest = this.prepareFieldsRequest('Property Information');
 
-    fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'address=' + key + '&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
+    fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'address=' + key)
     .then(results => results.json())
     .then(data => this.propertyLayer(this.state.map, {data}))
     .catch(function (e) {
@@ -307,7 +307,7 @@ class LMap extends React.Component {
         })
       )).join('');
 
-      fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
+      fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}')
         .then(results => results.json())
         .then(data => that.propertyLayer(this, {data}, e, that))
         .catch(function (e) {
