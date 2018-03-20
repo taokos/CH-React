@@ -10,15 +10,16 @@ class MapPopup extends React.Component {
     this.state = {
       'activeTab': 'properties'
     };
+    this._handlerEsc = this._handlerEsc.bind(this);
   }
 
   componentWillMount() {
-    document.addEventListener("keydown", this._handlerEsc.bind(this));
+    document.addEventListener("keydown", this._handlerEsc);
     document.body.classList.add('properties-enabled');
   }
 
   componentWillUnmount() {
-    document.removeEventListener("keydown", this._handlerEsc.bind(this));
+    document.removeEventListener("keydown", this._handlerEsc);
     document.body.classList.remove('properties-enabled');
   }
 

@@ -5,7 +5,6 @@ class MapSearch extends React.Component {
   constructor() {
     super();
     this.searchKeyPress = this.searchKeyPress.bind(this);
-    this.handleBlur = this.handleBlur.bind(this);
     this.handleComplete = this.handleComplete.bind(this);
     this.getApiData = this.getApiData.bind(this);
 
@@ -16,7 +15,9 @@ class MapSearch extends React.Component {
     this.state = {
       options: [],
       value: '',
+      class: '',
       places: [],
+      cursor: -1
     };
   };
 
@@ -31,31 +32,72 @@ class MapSearch extends React.Component {
   }
 
   handleBlur(e) {
-    this.setState({
-      'places': [],
-    });
+    this.setState({'class': ''});
+  }
+
+  handleFocus(e) {
+    this.setState({'class': ' focus'});
+    this.searchKeyPress(e);
   }
 
   getApiData(key) {
-    const that = this;
     fetch(process.env.REACT_APP_API +'/fast-ajax/autocomplete?field=address&place=' + process.env.REACT_APP_PLACE_ID + '&search=' + key)
       .then(results => results.json())
-      .then(function (responce) {
+      .then((responce) => {
         const data = responce && responce[0] ? responce : [];
-        that.searches[key] = data;
-        that.setState({'places': data});
+        this.searches[key] = data;
+        let cursor = this.state.cursor;
+        if (data.length < cursor + 1) {
+          this.setState({cursor: -1});
+        }
+        this.setState({
+          'places': data
+        });
       });
   }
 
   searchKeyPress(e) {
+    let {cursor} = this.state;
     if (typeof e !== 'undefined' && 'target' in e) {
       const val = e.target.value;
       this.setState({'value': val});
       if (this.searches[val]) {
-        this.setState({'places': this.searches[val]});
+        if (this.searches[val].length < cursor + 1) {
+          this.setState({cursor: -1});
+        }
+        this.setState({
+          'places': this.searches[val]
+        });
       }
       else {
         this.getApiData(e.target.value);
+      }
+      if (this.list) {
+        switch (e.keyCode) {
+          case 40:
+            e.preventDefault();
+            if (cursor < this.list.children.length - 1) {
+              this.setState( prevState => ({
+                cursor: prevState.cursor + 1
+              }));
+            }
+            break;
+
+          case 38:
+            e.preventDefault();
+            if (cursor > 0) {
+              this.setState(prevState => ({
+                cursor: prevState.cursor - 1
+              }));
+            }
+            break;
+
+          case 13:
+            if (this.list.children[cursor]) {
+              this.list.children[cursor].click();
+            }
+            break;
+        }
       }
     }
   }
@@ -63,19 +105,20 @@ class MapSearch extends React.Component {
   render() {
     const clickItem = this.handleComplete;
     return (
-      <div className="map-search-box">
+      <div className={"map-search-box" + this.state.class}>
         <div className="search-box">
           <input type={'text'}
-             // onBlur={this.handleBlur}
-             onFocus={this.searchKeyPress}
+             placeholder="Search"
+             onBlur={this.handleBlur.bind(this)}
+             onFocus={this.handleFocus.bind(this)}
              onKeyUp={this.searchKeyPress} />
           <button className="search"><i className="icon-b icon-b-ic-search-grey-big"> </i></button>
         </div>
         {(this.state.value.length > 0 && this.state.places.length > 0) && (
-          <ul>
-            {this.state.places.map(function(item, id) {
+          <ul ref={(el) => {this.list = el}}>
+            {this.state.places.map((item, id) => {
               return (
-                <li key={'field-' + id} onClick={clickItem}>
+                <li key={'item-' + id} className={this.state.cursor === id ? 'active' : ''} onClick={clickItem}>
                   {item.text}
                 </li>
               );

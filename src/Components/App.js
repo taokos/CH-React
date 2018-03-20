@@ -51,6 +51,7 @@ class App extends React.Component {
             <Route path="/map/us/:p1/:p2" exact render={props=><LMap toggleLink={this.toggleLink} showLayers={showLayers} {...props}/>} />
             <Route path="/us/:p1/:p2" component={Doc}/>
           </Switch>
+          <div id="popup-container" />
         </div>
       </BrowserRouter>
     );
