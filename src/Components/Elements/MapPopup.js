@@ -134,7 +134,7 @@ class MapPopup extends React.Component {
               }
             </div>
           </div>
-          <div className={"zoning-tab tab"  + (activeTab == 'zoning' ? '' : ' hide')}>
+          <div className={"zoning-tab tab"  + (activeTab === 'zoning' ? '' : ' hide')}>
             <div className="building-scenario">
               <div className="title">Building Scenario</div>
               <a className="btn" target="_blank" href={process.env.REACT_APP_ZONAR}>Learn More</a>
