@@ -13,6 +13,8 @@ let address = '', googleApiKey = '', checkedLayers={};
 
 const fieldsMapping = {
   'Property Information': [
+    {title: '', fields: ['place'], prefix: '', suffix: ''},
+    {title: '', fields: ['landUse'], prefix: '', suffix: ''},
     {title: '', fields: ['id'], prefix: '', suffix: ''},
     {title: '', fields: ['title'], prefix: '', suffix: ''},
     {title: 'Folio', fields: ['folioNumber'], prefix: '', suffix: ''},
@@ -74,7 +76,6 @@ const fieldsMapping = {
 
 class ActiveChecboxes extends React.Component {
   render() {
-
     return (
       <div>
       {_.values(_.mapObject(checkedLayers, function(grop, title) { let failter = false;
@@ -85,7 +86,7 @@ class ActiveChecboxes extends React.Component {
         }));}
         if (failter) {
         return(
-          <div key={title}>{title}
+          <div key={title}><div className={'group-layers'}>{title}</div>
             {_.values(_.mapObject(grop, function(status, filter) {
               if(status) return(
                 <div>{filter}</div>
@@ -105,8 +106,14 @@ class DetailsMap extends React.Component {
     super(props);
 
     this.state = {
-      activeLayers: {}
+      activeLayers: {},
+      settings:{}
     };
+    let settings = {};
+    settings[this.props.layer._leaflet_id] = this.props;
+    if ('layer' in this.props) {
+      this.setState({settings:settings});
+    }
     this.showPropertyDetails = this.showPropertyDetails.bind(this);
   }
 
@@ -123,9 +130,11 @@ class DetailsMap extends React.Component {
   render() {
     const item = this.props.data.data.items[0],
       map = this.props.map;
+    const DetailsPopupL = this.props.data.data.items[0]['landUse'].concat(this.props.data.data.items[0]['__extra__']['place']['raw']);
     return(
       <div>
         <div className={'head-title'} onClick={this.showPropertyDetails}>{item.title[0]} </div>
+        <div className={'ssl'}><span>SSL:</span>{item.folioNumber} </div>
         <div className={'list-active-layers'}>
           <span>Activaded Layers</span>
           <ActiveChecboxes />
@@ -135,7 +144,7 @@ class DetailsMap extends React.Component {
           <Layers
             map={map}
             {...this.props}
-            DetailsPopupL={1}
+            DetailsPopupL={DetailsPopupL}
             saveLayersSate={this.saveLayersSate.bind(this)}
             activeLayers={checkedLayers}
             showLayers={this.props.showLayers}
@@ -144,7 +153,6 @@ class DetailsMap extends React.Component {
       </div>
     );
   }
-
 }
 
 class LMap extends React.Component {
@@ -189,7 +197,7 @@ class LMap extends React.Component {
     });
   }
 
-  propertyLayer(map, data, e, that) {
+  propertyLayer(map, data, e, that, type) {
     let popupData = {
         fields: {},
         data:{},
@@ -208,8 +216,6 @@ class LMap extends React.Component {
       };
 
       const newLeayer =  L.geoJson(shape, {type:'property-layer', key:'property-layer-' + data.data.items[0].id});
-
-      newLeayer.bindPopup('<div id="l-map-popup"></div>');
 
       // Remove current property layer if needed.
       map.eachLayer(function (layer) {
@@ -230,6 +236,7 @@ class LMap extends React.Component {
       function hide() {
         map.eachLayer(function (layer) {
           if ('options' in layer && 'options' in newLeayer &&  layer.options.type ===  'property-layer') {
+            layer.closePopup();
             map.removeLayer(layer);
           }
         });
@@ -245,11 +252,11 @@ class LMap extends React.Component {
         if (e) {
           popupData['lng'] = e.latlng.lng;
           popupData['lat'] = e.latlng.lat;
-          map.setView(new L.LatLng(e.latlng.lat, e.latlng.lng), 17);
+          map.fitBounds(newLeayer.getBounds());
         }
         else if ('data' in data && 'items' in data.data && data.data.items[0] && 'gisData' in data.data.items[0] && 'geom' in data.data.items[0].gisData) {
           const lngLan = data.data.items[0].gisData.geom.coordinates[0][0];
-          map.setView(new L.LatLng(lngLan[1], lngLan[0]), 17);
+          map.fitBounds(newLeayer.getBounds());
           popupData['lng'] = lngLan[0];
           popupData['lat'] = lngLan[1];
         }
@@ -260,28 +267,42 @@ class LMap extends React.Component {
       }
 
       // If new layer was added update popup.
-      if (!layerExist) {
+      if (!layerExist && type !== 'details') {
         if (e) {
           popupData['lng'] = e.latlng.lng;
           popupData['lat'] = e.latlng.lat;
-          map.setView(new L.LatLng(e.latlng.lat, e.latlng.lng), 17);
         }
         else if ('data' in data && 'items' in data.data && data.data.items[0] && 'gisData' in data.data.items[0] && 'geom' in data.data.items[0].gisData) {
           const lngLan = data.data.items[0].gisData.geom.coordinates[0][0];
-          map.setView(new L.LatLng(lngLan[1], lngLan[0]), 17);
           popupData['lng'] = lngLan[0];
           popupData['lat'] = lngLan[1];
         }
         newLeayer.addTo(map);
         map.eachLayer(function (layer) {
           if ('options' in layer && 'options' in newLeayer &&  layer.options.type ===  'property-layer') {
-            layer.openPopup();
-            if (typeof that !== 'undefined' && layer.isPopupOpen() && 'props' in that && !_.isEmpty(e)) {
-
-             ReactDOM.render(<DetailsMap data={data} e={e} map={map} renderPopup={renderPopup} saveLayersState={that.saveLayersSate} {...that.props}/>, document.getElementById('l-map-popup'));
-            }
+            renderPopup(data);
           }
         });
+      }
+
+      if (type === 'details') {
+        hide();
+        map.fitBounds(newLeayer.getBounds());
+        newLeayer.addTo(map);
+        newLeayer.bindPopup('<div id="l-map-popup' + newLeayer['_leaflet_id'] + '"></div>');
+        newLeayer.on('popupopen', function (popup) {
+          if (typeof that !== 'undefined' && 'props' in that && !_.isEmpty(e)) {
+            ReactDOM.render(<DetailsMap
+              layer={newLeayer}
+              data={data}
+              e={e}
+              map={map}
+              renderPopup={renderPopup}
+              saveLayersState={that.saveLayersSate}
+              {...that.props}/>, document.getElementById('l-map-popup' + newLeayer['_leaflet_id']));
+          }
+        });
+        newLeayer.openPopup();
       }
     }
   }
@@ -298,21 +319,30 @@ class LMap extends React.Component {
       map: map
     });
 
-    // Add property layer and open popup with property info.
-    map.on('click', function(e) {
+
+    function openPopup(e, map, type) {
       let fieldsRequest = _.values(_.mapObject(
         fieldsMapping['Property Information'], (val, key) =>
-        val.fields.map((result) => {
-          return 'fields[]=' + result + '&';
-        })
+          val.fields.map((result) => {
+            return 'fields[]=' + result + '&';
+          })
       )).join('');
 
-      fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}')
-        .then(results => results.json())
-        .then(data => that.propertyLayer(this, {data}, e, that))
-        .catch(function (e) {
-          console.error(e);
-        });
+      fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
+      .then(results => results.json())
+      .then(data => that.propertyLayer(map, {data}, e, that, type))
+      .catch(function (e) {
+        console.error(e);
+      });
+    }
+
+    // Add property layer and open popup with property info.
+    map.on('click', function(e) {
+      openPopup(e, this);
+    });
+
+    map.on('contextmenu',function(e){
+      openPopup(e, this, 'details');
     });
 
     const baseUrl = process.env.NODE_ENV === 'development' ? process.env.REACT_APP_LOCAL_SETTINGS_URL : process.env.REACT_APP_SETTINGS_URL;
@@ -348,8 +378,7 @@ class LMap extends React.Component {
     this.setState({
       map: map
     });
-
-  }
+  };
 
   render() {
     let baseLayer = '',

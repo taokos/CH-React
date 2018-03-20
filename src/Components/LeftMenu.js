@@ -45,7 +45,6 @@ class UserBlock extends Component {
 }
 
 class LeftMenu extends Component {
-
   componentWillMount() {
     const dataUrl = siteUrl + this.doc + '?_format=json';
     const that = this;
@@ -101,7 +100,6 @@ class LeftMenu extends Component {
             <span className="title">{this.state.pageData.name[0].value}</span>
           </section>
         ) : ''}
-
         <nav className="ch-top-menu">
           <a href={this.map} className={"map" + this.isActive(this.map)}>
             <i className="icon-b icon-b-ic-properties"></i>
@@ -152,7 +150,6 @@ class LeftMenu extends Component {
         </nav>
       </div>
     );
-    
   }
 }
 
