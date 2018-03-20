@@ -7,30 +7,69 @@ import BaseLayer from './Elements/BaseLayer.js';
 import MapSearch from './Elements/MapSearch.js';
 import _ from 'underscore';
 
-const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=10&offset=0&ignoreStatus=&indent=&';
+const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=1&offset=0&ignoreStatus=&indent=&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN + '&';
 
 let address = '', googleApiKey = '', checkedLayers={};
 
 const fieldsMapping = {
-  'Property Information': {
-    'id': '',
-    'title': '',
-    'folioNumber': 'Folio',
-    'address': 'Address',
-    'owners': 'Owner(s)',
-    'owner_mailing_address': 'Owner Address',
-    'legalDesc': 'Property Description',
-    'landUseDorCode': 'Detailed Use',
-    'yearBuilt': 'Year Built of Property',
-    'buildings': 'Number of Buildings',
-    'bedrooms': 'Bed Count',
-    'baths': 'Bath Count',
-    'livingUnits': 'Number of Units',
-    'propertySize': 'Property Sq Ft',
-    'abuttingProperties': 'Neighboring Properties',
-    'streetName': 'Places - Street(s)',
-    'building:real': 'Places - Related Building / Condominium Name'
-  }
+  'Property Information': [
+    {title: '', fields: ['id'], prefix: '', suffix: ''},
+    {title: '', fields: ['title'], prefix: '', suffix: ''},
+    {title: 'Folio', fields: ['folioNumber'], prefix: '', suffix: ''},
+    {title: 'Address', fields: ['title','city','state', 'postalCode'], prefix: '', suffix: ''},
+    {title: 'Owner(s)', fields: ['primary_owners'], prefix: '', suffix: ''},
+    {title: 'Owner Address', fields: ['owner_mailing_address', 'ownerAddressCity', 'OwnerAddressCountry'], prefix: '', suffix: ''},
+    {title: 'Property Description', fields: ['legalDesc'], prefix: '', suffix: ''},
+    {title: 'Millage Code', fields: ['millageCode'], prefix: '', suffix: ''},
+    {title: 'Detailed Use', fields: ['landUseDorCode'], prefix: '', suffix: ''},
+    {title: 'Year Built of Property', fields: ['yearBuilt'], prefix: '', suffix: ''},
+    {title: 'Number of Buildings', fields: ['buildings'], prefix: '', suffix: ''},
+    {title: 'Bed Count', fields: ['bedrooms'], prefix: '', suffix: ''},
+    {title: 'Bath Count', fields: ['baths'], prefix: '', suffix: ''},
+    {title: 'Number of Units', fields: ['livingUnits'], prefix: '', suffix: ''},
+    {title: 'Property Sq Ft', fields: ['propertySize'], prefix: '', suffix: ' ft²'},
+    {title: 'Neighboring Properties', fields: ['abuttingProperties'], prefix: '', suffix: ''},
+    {title: 'Places - Related Building / Condominium Name', fields: ['building:real'], prefix: '', suffix: ''},
+    {title: 'Places - Street(s)', fields: ['streetName'], prefix: '', suffix: ''},
+    {title: 'Places - Neighborhood', fields: ['neighborhood:real'], prefix: '', suffix: ''},
+    {title: 'Places - Zip Code', fields: ['postalCode'], prefix: '', suffix: ''},
+    {title: 'Places - City', fields: ['city'], prefix: '', suffix: ''},
+    {title: 'Places - County', fields: ['county'], prefix: '', suffix: ''},
+  ],
+  'Transit': [
+    {title: 'Buses', fields: ['county'], prefix: '', suffix: ''},
+    {title: 'Trains', fields: ['county'], prefix: '', suffix: ''},
+    {title: 'Airport - County', fields: ['county'], prefix: '', suffix: ''},
+  ],
+  'Planning & Community Development': [
+    {title: 'FEMA Flood Zone', fields: ['floodZone'], prefix: '', suffix: ''},
+  ],
+  'Administrative / Regulatory': [
+    {title: 'Assigned Elementary School', fields: ['name'], prefix: '', suffix: ''},
+    {title: 'School grades, capacity, enrollment, school rating', fields: ['schoolGradesName','capacity', 'schoolEnroll', 'currentGrade'], prefix: '', suffix: ''},
+    {title: 'Assigned Middle School', fields: ['name'], prefix: '', suffix: ''},
+    {title: 'School grades, capacity, enrollment, school rating', fields: ['schoolGradesName','capacity', 'schoolEnroll', 'currentGrade'], prefix: '', suffix: ''},
+    {title: 'Assigned High School', fields: ['name'], prefix: '', suffix: ''},
+    {title: 'School grades, capacity, enrollment, school rating', fields: ['schoolGradesName','capacity', 'schoolEnroll', 'currentGrade'], prefix: '', suffix: ''},
+  ],
+  'Assessments': [
+    {title: 'Just Land Value', fields: ['landValue'], prefix: '', suffix: ''},
+    {title: 'Just Building Value', fields: ['buildingValue'], prefix: '', suffix: ''},
+    {title: 'Just Other Value', fields: ['extraFeatureValue'], prefix: '', suffix: ''},
+    {title: 'Current Just / Market Value', fields: ['marketValue'], prefix: '', suffix: ''},
+    {title: 'Last Year\'s Just / Market Value', fields: ['marketValue'], prefix: '', suffix: ''},
+    {title: 'Current Assessed / Save Our Home Value', fields: ['assessedValue'], prefix: '', suffix: ''},
+    {title: 'Last Year\'s Assessed / Save Our Home Value', fields: ['assessedValue'], prefix: '', suffix: ''},
+    {title: 'City Taxable Value', fields: ['cityTax'], prefix: '', suffix: ''},
+    {title: 'County Taxable Value', fields: ['countyTax'], prefix: '', suffix: ''},
+    {title: 'School Taxable Value', fields: ['schoolTax'], prefix: '', suffix: ''},
+  ],
+  'Sales History': [
+    {title: '1st Sale Date', fields: ['saleDate'], prefix: '', suffix: ''},
+    {title: '1st Sale Amount', fields: ['price'], prefix: '', suffix: ''},
+    {title: 'Avg Price per Sq Ft', fields: ['pricePerPropertysf'], prefix: '', suffix: ''},
+    {title: '1st Deed Type', fields: ['transferCode'], prefix: '', suffix: ''},
+  ]
 };
 
 class ActiveChecboxes extends React.Component {
@@ -43,7 +82,7 @@ class ActiveChecboxes extends React.Component {
           if(status) {
             failter = true;
           }
-        }))};
+        }));}
         if (failter) {
         return(
           <div key={title}>{title}
@@ -51,13 +90,13 @@ class ActiveChecboxes extends React.Component {
               if(status) return(
                 <div>{filter}</div>
               );
-              else return('')
+              else return('');
             }))}
           </div>
-        )} else {return('')}
+        );} else {return('');}
       }))}
       </div>
-    )
+    );
   }
 }
 
@@ -78,7 +117,7 @@ class DetailsMap extends React.Component {
   }
 
   showPropertyDetails() {
-    this.props.renderPopup(this.props.data, this.props.e)
+    this.props.renderPopup(this.props.data, this.props.e);
   }
 
   render() {
@@ -103,7 +142,7 @@ class DetailsMap extends React.Component {
           />
         </div>
       </div>
-    )
+    );
   }
 
 }
@@ -126,19 +165,23 @@ class LMap extends React.Component {
   saveLayersSate(layers) {
     if (typeof layers !== 'undefined') {
       checkedLayers[layers.group] = layers.layers;
-      this.setState({layers: checkedLayers})
+      this.setState({layers: checkedLayers});
     }
   }
 
-
   prepareFieldsRequest(fieldsKey) {
-    return _.values(_.mapObject(fieldsMapping[fieldsKey], (val, key) => 'fields[]=' + key + '&')).join('')
+    return _.values(_.mapObject(
+      fieldsMapping[fieldsKey], (val, key) =>
+        val.fields.map((result) => {
+          return 'fields[]=' + result + '&';
+        })
+    )).join('');
   }
 
   getPropertyLayer(key) {
     let fieldsRequest = this.prepareFieldsRequest('Property Information');
 
-    fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'address=' + key + '&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
+    fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'address=' + key)
     .then(results => results.json())
     .then(data => this.propertyLayer(this.state.map, {data}))
     .catch(function (e) {
@@ -257,9 +300,14 @@ class LMap extends React.Component {
 
     // Add property layer and open popup with property info.
     map.on('click', function(e) {
-      let fieldsRequest = _.values(_.mapObject(fieldsMapping['Property Information'], (val, key) => 'fields[]=' + key + '&')).join('');
+      let fieldsRequest = _.values(_.mapObject(
+        fieldsMapping['Property Information'], (val, key) =>
+        val.fields.map((result) => {
+          return 'fields[]=' + result + '&';
+        })
+      )).join('');
 
-      fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
+      fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}')
         .then(results => results.json())
         .then(data => that.propertyLayer(this, {data}, e, that))
         .catch(function (e) {

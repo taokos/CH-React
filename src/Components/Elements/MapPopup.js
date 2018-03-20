@@ -59,15 +59,28 @@ class MapPopup extends React.Component {
     const streetViewPanoramaOptions = {
       position: {lat: popupData.lat, lng: popupData.lng},
       pov: {heading: 100, pitch: 0},
+      addressControl: false,
       zoom: 1
     };
+    const ItemTitle = ['title','city','state', 'postalCode'].map(function(el) {
+      if (el in item && item[el] !== null && item[el] !== '') {
+        el = item[el];
+        if (typeof el === 'object') {
+          el = el.join(', ');
+        }
+      }
+      else {
+        el = '';
+      }
+      return el;
+    }).filter(function(el) {return el !== '';}).join(', ');
 
     return (
       <div className="map-modal-wrapper left-overlay">
         <div className="head-title">
-          <h3>{item.title}</h3>
+          <h3>{ItemTitle}</h3>
           <button className="button-link close" onClick={() => this.onCloseClicked()}>
-            <i className="icon-b icon-b-close"></i>
+            <i className="icon-b icon-b-close" />
           </button>
         </div>
         <div className="tabs">
@@ -101,12 +114,27 @@ class MapPopup extends React.Component {
                       <div className="properties">
                         {
                           _.values(_.mapObject(value, function (value, key) {
-                          if (value !== '' && key in item) {
+                            let hasResult = value.fields.filter(
+                              function(field) {
+                                return (field in item) && item[field] != null;
+                              }
+                            );
+                          if (value.title !== '' && hasResult.length > 0) {
                             i++;
+                            let result = hasResult.map((resultField) => {
+                              if (typeof item[resultField] === 'object') {
+                                item[resultField] = item[resultField].join(', ');
+                              }
+                              return item[resultField];
+                            }).join(', ');
                             return (
-                              <div key={'field-' + key} className={'item ' + (i % 2 === 0 ? 'even' : 'odd')}>
-                                <span className="lbl">{value}:</span>
-                                <span className="value">{item[key]}</span>
+                              <div key={'field-' + value.fields.join('-')} className={'item ' + (i % 2 == 0 ? 'even' : 'odd')}>
+                                <span className="lbl">{value.title}:</span>
+                                <span className="value">
+                                  {value.prefix}
+                                  {result}
+                                  {value.suffix}
+                                </span>
                               </div>
                             );
                           }
@@ -121,7 +149,7 @@ class MapPopup extends React.Component {
           <div className={"zoning-tab tab"  + (activeTab === 'zoning' ? '' : ' hide')}>
             <div className="building-scenario">
               <div className="title">Building Scenario</div>
-              <a className="btn" target="_blank" href={process.env.REACT_APP_GRIDICS + item.title_uri}>Learn More</a>
+              <a className="btn" target="_blank" href={process.env.REACT_APP_ZONAR}>Learn More</a>
             </div>
           </div>
         </div>
