@@ -114,7 +114,7 @@ class MapPopup extends React.Component {
                                 item[resultField] = item[resultField].join(', ');
                               }
                               return item[resultField];
-                            });
+                            }).join(', ');
                             return (
                               <div key={'field-' + value.fields.join('-')} className={'item ' + (i % 2 == 0 ? 'even' : 'odd')}>
                                 <span className="lbl">{value.title}:</span>

@@ -20,6 +20,7 @@ const fieldsMapping = {
     {title: 'Owner(s)', fields: ['primary_owners'], prefix: '', suffix: ''},
     {title: 'Owner Address', fields: ['owner_mailing_address', 'ownerAddressCity', 'OwnerAddressCountry'], prefix: '', suffix: ''},
     {title: 'Property Description', fields: ['legalDesc'], prefix: '', suffix: ''},
+    {title: 'Millage Code', fields: ['millageCode'], prefix: '', suffix: ''},
     {title: 'Detailed Use', fields: ['landUseDorCode'], prefix: '', suffix: ''},
     {title: 'Year Built of Property', fields: ['yearBuilt'], prefix: '', suffix: ''},
     {title: 'Number of Buildings', fields: ['buildings'], prefix: '', suffix: ''},
@@ -28,8 +29,46 @@ const fieldsMapping = {
     {title: 'Number of Units', fields: ['livingUnits'], prefix: '', suffix: ''},
     {title: 'Property Sq Ft', fields: ['propertySize'], prefix: '', suffix: ' ft²'},
     {title: 'Neighboring Properties', fields: ['abuttingProperties'], prefix: '', suffix: ''},
+    {title: 'Places - Related Building / Condominium Name', fields: ['building:real'], prefix: '', suffix: ''},
     {title: 'Places - Street(s)', fields: ['streetName'], prefix: '', suffix: ''},
-    {title: 'Places - Related Building / Condominium Name', fields: ['building:real'], prefix: '', suffix: ''}
+    {title: 'Places - Neighborhood', fields: ['neighborhood:real'], prefix: '', suffix: ''},
+    {title: 'Places - Zip Code', fields: ['postalCode'], prefix: '', suffix: ''},
+    {title: 'Places - City', fields: ['city'], prefix: '', suffix: ''},
+    {title: 'Places - County', fields: ['county'], prefix: '', suffix: ''},
+  ],
+  'Transit': [
+    {title: 'Buses', fields: ['county'], prefix: '', suffix: ''},
+    {title: 'Trains', fields: ['county'], prefix: '', suffix: ''},
+    {title: 'Airport - County', fields: ['county'], prefix: '', suffix: ''},
+  ],
+  'Planning & Community Development': [
+    {title: 'FEMA Flood Zone', fields: ['floodZone'], prefix: '', suffix: ''},
+  ],
+  'Administrative / Regulatory': [
+    {title: 'Assigned Elementary School', fields: ['name'], prefix: '', suffix: ''},
+    {title: 'School grades, capacity, enrollment, school rating', fields: ['schoolGradesName','capacity', 'schoolEnroll', 'currentGrade'], prefix: '', suffix: ''},
+    {title: 'Assigned Middle School', fields: ['name'], prefix: '', suffix: ''},
+    {title: 'School grades, capacity, enrollment, school rating', fields: ['schoolGradesName','capacity', 'schoolEnroll', 'currentGrade'], prefix: '', suffix: ''},
+    {title: 'Assigned High School', fields: ['name'], prefix: '', suffix: ''},
+    {title: 'School grades, capacity, enrollment, school rating', fields: ['schoolGradesName','capacity', 'schoolEnroll', 'currentGrade'], prefix: '', suffix: ''},
+  ],
+  'Assessments': [
+    {title: 'Just Land Value', fields: ['landValue'], prefix: '', suffix: ''},
+    {title: 'Just Building Value', fields: ['buildingValue'], prefix: '', suffix: ''},
+    {title: 'Just Other Value', fields: ['extraFeatureValue'], prefix: '', suffix: ''},
+    {title: 'Current Just / Market Value', fields: ['marketValue'], prefix: '', suffix: ''},
+    {title: 'Last Year\'s Just / Market Value', fields: ['marketValue'], prefix: '', suffix: ''},
+    {title: 'Current Assessed / Save Our Home Value', fields: ['assessedValue'], prefix: '', suffix: ''},
+    {title: 'Last Year\'s Assessed / Save Our Home Value', fields: ['assessedValue'], prefix: '', suffix: ''},
+    {title: 'City Taxable Value', fields: ['cityTax'], prefix: '', suffix: ''},
+    {title: 'County Taxable Value', fields: ['countyTax'], prefix: '', suffix: ''},
+    {title: 'School Taxable Value', fields: ['schoolTax'], prefix: '', suffix: ''},
+  ],
+  'Sales History': [
+    {title: '1st Sale Date', fields: ['saleDate'], prefix: '', suffix: ''},
+    {title: '1st Sale Amount', fields: ['price'], prefix: '', suffix: ''},
+    {title: 'Avg Price per Sq Ft', fields: ['pricePerPropertysf'], prefix: '', suffix: ''},
+    {title: '1st Deed Type', fields: ['transferCode'], prefix: '', suffix: ''},
   ]
 };
 
@@ -43,7 +82,7 @@ class ActiveChecboxes extends React.Component {
           if(status) {
             failter = true;
           }
-        }))};
+        }));}
         if (failter) {
         return(
           <div key={title}>{title}
@@ -51,13 +90,13 @@ class ActiveChecboxes extends React.Component {
               if(status) return(
                 <div>{filter}</div>
               );
-              else return('')
+              else return('');
             }))}
           </div>
-        )} else {return('')}
+        );} else {return('');}
       }))}
       </div>
-    )
+    );
   }
 }
 
@@ -78,7 +117,7 @@ class DetailsMap extends React.Component {
   }
 
   showPropertyDetails() {
-    this.props.renderPopup(this.props.data, this.props.e)
+    this.props.renderPopup(this.props.data, this.props.e);
   }
 
   render() {
@@ -126,7 +165,7 @@ class LMap extends React.Component {
   saveLayersSate(layers) {
     if (typeof layers !== 'undefined') {
       checkedLayers[layers.group] = layers.layers;
-      this.setState({layers: checkedLayers})
+      this.setState({layers: checkedLayers});
     }
   }
 
