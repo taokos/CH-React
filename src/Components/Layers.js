@@ -17,9 +17,18 @@ const colors = [
 ],
   tailLaers = [
     {title:"Parcel Lines", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/property_records_parcel_lines/{z}/{x}/{y}.png'},
-    {title:"Future Land Use", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/land_use_future_land_use/{z}/{x}/{y}.png'},
-    {title:"Zoning Code", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/land_use_zoning_code/{z}/{x}/{y}.png'},
-    {title:"Zoning Overlay", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/land_use_zoning_overlay/{z}/{x}/{y}.png'},
+    {title:"Property Size", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/property_records_property_size/{z}/{x}/{y}.png'},
+    {title:"Age of Property by Decade", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/property_records_year_built/{z}/{x}/{y}.png'},
+    {title:"Property Type", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/property_records_property_type/{z}/{x}/{y}.png'},
+    {title:"Vacant Land", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/property_records_vacant_type/{z}/{x}/{y}.png'},
+    {title:"Zoning Code", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/land_use_zoning_code/{z}/{x}/{y}.png'},    
+    {title:"Zoning Overlays", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/land_use_zoning_overlay/{z}/{x}/{y}.png'},
+    {title:"Transit Route", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/transit_route/{z}/{x}/{y}.png'},
+    {title:"Transit Stops", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/transportation_stop_types/{z}/{x}/{y}.png'},
+    {title:"Streets", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/streets_line/{z}/{x}/{y}.png'},
+    {title:"Public Elementary School Boundaries", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/elementary_schools/{z}/{x}/{y}.png'},
+    {title:"Public Middle School Boundaries", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/middle_schools/{z}/{x}/{y}.png'},
+    {title:"Public High School Boundaries", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/high_schools/{z}/{x}/{y}.png'},
   ];
 
 
@@ -193,7 +202,7 @@ class Layers extends Component {
 
     fetch(requestUrl)
       .then(results => results.json())
-      .then(data => saveLayers(data, that));
+      .then(data => saveLayers(data, that))
 
     function saveLayers(data, that) {
       _.mapObject(data, function(group, id) {
