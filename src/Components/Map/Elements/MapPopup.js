@@ -1,5 +1,5 @@
 import React from 'react';
-import StreetView from './StreetView.js';
+import StreetView from '../Plugins/StreetView.js';
 import _ from 'underscore';
 
 class MapPopup extends React.Component {

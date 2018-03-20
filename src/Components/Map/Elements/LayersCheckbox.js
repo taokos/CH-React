@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import LoadGeoJSON from "./GeoJSONLayer";
+import LoadGeoJSON from "../Plugins/GeoJSONLayer";
 
 export default class LayersCheckbox extends Component {
 

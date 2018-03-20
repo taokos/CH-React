@@ -1,7 +1,7 @@
 import React, {Fragment} from 'react';
 import ReactDOM from 'react-dom';
 import L from 'leaflet';
-import Layers from './Layers.js';
+import Layers from './Elements/Layers.js';
 import MapPopup from "./Elements/MapPopup.js";
 import BaseLayer from './Elements/BaseLayer.js';
 import MapSearch from './Elements/MapSearch.js';

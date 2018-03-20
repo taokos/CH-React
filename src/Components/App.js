@@ -1,12 +1,10 @@
 import React from 'react';
 import {BrowserRouter, Route, Switch} from "react-router-dom";
-import HelpCenter from './HelpCenter';
+import HelpCenter from './HelpCenter/HelpCenter';
 import Utilities from '../Utilities/Utilities.js';
 import _ from 'underscore';
-
-
-import LMap from './Map';
-import Doc from './Doc';
+import LMap from './Map/Map';
+import Doc from './Doc/Doc';
 import LeftMenu from './LeftMenu';
 
 // For development use only.
