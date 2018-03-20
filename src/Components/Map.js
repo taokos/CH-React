@@ -7,30 +7,30 @@ import BaseLayer from './Elements/BaseLayer.js';
 import MapSearch from './Elements/MapSearch.js';
 import _ from 'underscore';
 
-const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=10&offset=0&ignoreStatus=&indent=&';
+const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=1&offset=0&ignoreStatus=&indent=&';
 
 let address = '', googleApiKey = '', checkedLayers={};
 
 const fieldsMapping = {
-  'Property Information': {
-    'id': '',
-    'title': '',
-    'folioNumber': 'Folio',
-    'address': 'Address',
-    'owners': 'Owner(s)',
-    'owner_mailing_address': 'Owner Address',
-    'legalDesc': 'Property Description',
-    'landUseDorCode': 'Detailed Use',
-    'yearBuilt': 'Year Built of Property',
-    'buildings': 'Number of Buildings',
-    'bedrooms': 'Bed Count',
-    'baths': 'Bath Count',
-    'livingUnits': 'Number of Units',
-    'propertySize': 'Property Sq Ft',
-    'abuttingProperties': 'Neighboring Properties',
-    'streetName': 'Places - Street(s)',
-    'building:real': 'Places - Related Building / Condominium Name'
-  }
+  'Property Information': [
+    {title: '', fields: ['id'], prefix: '', suffix: ''},
+    {title: '', fields: ['title'], prefix: '', suffix: ''},
+    {title: 'Folio', fields: ['folioNumber'], prefix: '', suffix: ''},
+    {title: 'Address', fields: ['title','city','state', 'postalCode'], prefix: '', suffix: ''},
+    {title: 'Owner(s)', fields: ['primary_owners'], prefix: '', suffix: ''},
+    {title: 'Owner Address', fields: ['owner_mailing_address', 'ownerAddressCity', 'OwnerAddressCountry'], prefix: '', suffix: ''},
+    {title: 'Property Description', fields: ['legalDesc'], prefix: '', suffix: ''},
+    {title: 'Detailed Use', fields: ['landUseDorCode'], prefix: '', suffix: ''},
+    {title: 'Year Built of Property', fields: ['yearBuilt'], prefix: '', suffix: ''},
+    {title: 'Number of Buildings', fields: ['buildings'], prefix: '', suffix: ''},
+    {title: 'Bed Count', fields: ['bedrooms'], prefix: '', suffix: ''},
+    {title: 'Bath Count', fields: ['baths'], prefix: '', suffix: ''},
+    {title: 'Number of Units', fields: ['livingUnits'], prefix: '', suffix: ''},
+    {title: 'Property Sq Ft', fields: ['propertySize'], prefix: '', suffix: ' ft²'},
+    {title: 'Neighboring Properties', fields: ['abuttingProperties'], prefix: '', suffix: ''},
+    {title: 'Places - Street(s)', fields: ['streetName'], prefix: '', suffix: ''},
+    {title: 'Places - Related Building / Condominium Name', fields: ['building:real'], prefix: '', suffix: ''}
+  ]
 };
 
 class DetailsMap extends React.Component {
@@ -39,7 +39,7 @@ class DetailsMap extends React.Component {
    
     this.state = {
       activeLayers: {}
-    }
+    };
   }
   
   saveLayersSate(layers) {
@@ -63,7 +63,7 @@ class DetailsMap extends React.Component {
           />
         </div>
       </div>
-    )
+    );
   }
 
 }
@@ -87,7 +87,12 @@ class LMap extends React.Component {
   }
 
   prepareFieldsRequest(fieldsKey) {
-    return _.values(_.mapObject(fieldsMapping[fieldsKey], (val, key) => 'fields[]=' + key + '&')).join('')
+    return _.values(_.mapObject(
+      fieldsMapping[fieldsKey], (val, key) =>
+        val.fields.map((result) => {
+          return 'fields[]=' + result + '&';
+        })
+    )).join('');
   }
 
   getPropertyLayer(key) {
@@ -95,7 +100,7 @@ class LMap extends React.Component {
 
     fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'address=' + key + '&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
     .then(results => results.json())
-    .then(data => this.propertyLayer(this.state.map, {data}))
+    .then(data => this.propertyLayer(this.state.map, {data}));
   }
 
   propertyLayer(map, data, e, that) {
@@ -199,7 +204,12 @@ class LMap extends React.Component {
 
     // Add property layer and open popup with property info.
     map.on('click', function(e) {
-      let fieldsRequest = _.values(_.mapObject(fieldsMapping['Property Information'], (val, key) => 'fields[]=' + key + '&')).join('');
+      let fieldsRequest = _.values(_.mapObject(
+        fieldsMapping['Property Information'], (val, key) =>
+        val.fields.map((result) => {
+          return 'fields[]=' + result + '&';
+        })
+      )).join('');
 
       fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
         .then(results => results.json())
