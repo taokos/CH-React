@@ -48,7 +48,9 @@ class LeftMenu extends Component {
   componentWillMount() {
     const dataUrl = siteUrl + this.doc + '?_format=json';
     const that = this;
-    fetch(dataUrl)
+    fetch(dataUrl, {
+      credentials: 'include'
+    })
       .then(results => results.json())
       .then(function (data) {
         if (data && !data.message) {
