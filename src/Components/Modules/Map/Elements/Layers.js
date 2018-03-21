@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import L from 'leaflet';
-import LayersCheckbox from './Elements/LayersCheckbox';
+import LayersCheckbox from './LayersCheckbox';
 import _ from 'underscore';
-
 
 const colors = [
   "#db4c4c",
@@ -21,7 +20,7 @@ const colors = [
     {title:"Age of Property by Decade", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/property_records_year_built/{z}/{x}/{y}.png'},
     {title:"Property Type", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/property_records_property_type/{z}/{x}/{y}.png'},
     {title:"Vacant Land", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/property_records_vacant_type/{z}/{x}/{y}.png'},
-    {title:"Zoning Code", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/land_use_zoning_code/{z}/{x}/{y}.png'},    
+    {title:"Zoning Code", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/land_use_zoning_code/{z}/{x}/{y}.png'},
     {title:"Zoning Overlays", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/land_use_zoning_overlay/{z}/{x}/{y}.png'},
     {title:"Transit Route", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/transit_route/{z}/{x}/{y}.png'},
     {title:"Transit Stops", urlTemplate:process.env.REACT_APP_TILES_SERVER + '/transportation_stop_types/{z}/{x}/{y}.png'},
@@ -182,7 +181,7 @@ class Layers extends Component {
 
     this.close = this.close.bind(this);
     if (!_.isEmpty(this.props.activeLayers)) {
-      this.state = this.props.activeLayers
+      this.state = this.props.activeLayers;
     }
     this.state = {
       reset: false,
@@ -221,7 +220,7 @@ class Layers extends Component {
             groupedOverlays[group['group']] = {};
           }
           groupedOverlays[group['group']][layer.layer_title] = {apiUrl, options, id};
-        })
+        });
       });
       that.setState({layers: true});
     }
@@ -311,7 +310,7 @@ class Layers extends Component {
         <div className={"layers" + hideClass}>
           Loading ...
         </div>
-      )
+      );
     }
   }
 }

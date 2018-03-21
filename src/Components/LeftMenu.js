@@ -31,7 +31,7 @@ class UserBlock extends Component {
           <a href={accountUrl + '/user'} className="user">
             <span className="image"><img alt="Avatar" src={this.state.userData.picture} /></span>
             <span className="name">{this.state.userData.field_user_first_name + ' ' + this.state.userData.field_user_last_name}</span>
-        </a>
+          </a>
         ) : (
           <a href={accountUrl + '/user/login?destination-url=' + window.location} className="user">
             <span className="image default"></span>
@@ -54,7 +54,8 @@ class LeftMenu extends Component {
         if (data && !data.message) {
           that.setState({pageData: data});
         }
-      });
+      }
+    );
   }
 
   constructor(props) {
@@ -94,7 +95,7 @@ class LeftMenu extends Component {
     return (
       <div className={"ch-menu" + (this.state.expanded ? ' expanded' : '')}>
         <button onClick={this.toggleMenu.bind(this)} className="toggle button-link"></button>
-        {this.state.pageData && this.state.pageData.field_logo[0] ? (
+        {this.state.pageData && 'field_logo' in this.state.pageData && this.state.pageData.field_logo[0] ? (
           <section className="ch-city-logo">
             <img alt="City Logo" src={this.state.pageData.field_logo[0].url} className="logo" />
             <span className="title">{this.state.pageData.name[0].value}</span>

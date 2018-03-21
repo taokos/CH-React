@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import SearchBox from './SearchBox';
+import SearchBox from './Elements/SearchBox';
 import TreeView from 'react-simple-jstree';
 import $ from 'jquery';
 import HtmlToReact from 'html-to-react';
