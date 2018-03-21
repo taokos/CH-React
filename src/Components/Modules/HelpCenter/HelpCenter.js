@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import CollapsibleGroup from './CollapsibleGroup';
+import CollapsibleGroup from '../../Elements/CollapsibleGroup';
 
 
 const siteUrl = process.env.REACT_APP_SETTINGS_URL;

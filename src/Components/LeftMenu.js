@@ -95,7 +95,7 @@ class LeftMenu extends Component {
     return (
       <div className={"ch-menu" + (this.state.expanded ? ' expanded' : '')}>
         <button onClick={this.toggleMenu.bind(this)} className="toggle button-link"></button>
-        {this.state.pageData && this.state.pageData.field_logo[0] ? (
+        {this.state.pageData && 'field_logo' in this.state.pageData && this.state.pageData.field_logo[0] ? (
           <section className="ch-city-logo">
             <img alt="City Logo" src={this.state.pageData.field_logo[0].url} className="logo" />
             <span className="title">{this.state.pageData.name[0].value}</span>

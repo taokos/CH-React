@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import copy from 'copy-to-clipboard';
-import PopupBase from './PopupBase.js';
+import PopupBase from '../../../Elements/PopupBase.js';
 
 export default class CopyPopup extends Component {
 
