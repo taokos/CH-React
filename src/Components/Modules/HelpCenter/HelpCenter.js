@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import CollapsibleGroup from '../../Elements/CollapsibleGroup';
+import HelpSearch from './HelpSearch';
 
 
 const siteUrl = process.env.REACT_APP_SETTINGS_URL;
@@ -50,6 +51,7 @@ class HelpCenter extends Component {
             <i className="icon-b icon-b-close"></i>
           </a>
         </div>
+        <HelpSearch />
         {helpData && (
           <div className="groups-wrapper">
             {Object.keys(helpData).map(function (group, i) {
