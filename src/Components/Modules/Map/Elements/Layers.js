@@ -98,6 +98,7 @@ class GroupLayers extends Component {
       ckeckAll: !this.state.ckeckAll,
       checkedLayers: _.mapObject(this.state.checkedLayers, () => !this.state.ckeckAll)
     });
+    this.props.sl({group:this.props.name , layers:_.mapObject(this.state.checkedLayers, () => !this.state.ckeckAll)});
   }
 
   // Collapse checkboxes event.
@@ -120,7 +121,7 @@ class GroupLayers extends Component {
     const that = this;
     const checkAllModifier = this.countChecked();
     const DetailsPopupL = this.props.DetailsPopupL;
-    if (typeof DetailsPopupL !== 'undefined' && !('Parcel Lines' in layers)) {
+    if (typeof DetailsPopupL !== 'undefined' && DetailsPopupL && !('Parcel Lines' in layers)) {
       let newLayers = {};
       for (const layer in layers) {
         const args = Object.values(layers[layer]);
@@ -246,25 +247,26 @@ class Layers extends Component {
     const hideClass = this.props.showLayers ? '' : ' hide';
     const saveLayersSate = this.props.saveLayersSate;
     const activeLayers=this.props.activeLayers;
+    const DetailsPopupL = this.props.DetailsPopupL ? this.props.DetailsPopupL : null;
+    const groupLayers = Object.keys(groupedOverlays).map(function (layer, i) {
+      return (
+        <GroupLayers
+          key={'group-layers-' + i}
+          sl={saveLayersSate}
+          map={map}
+          name={layer}
+          activeLayers={activeLayers[layer]}
+          layers={groupedOverlays[layer]}
+          DetailsPopupL={DetailsPopupL}
+          reset={reset} />
+      );
+    });
     if (this.props.DetailsPopupL) {
-      const DetailsPopupL = this.props.DetailsPopupL;
       return (
         <div className={"layers"}>
           <div className="groups-wrapper layers-wrapper">
             <div className="overlays">
-              {Object.keys(groupedOverlays).map(function (layer, i) {
-                return (
-                  <GroupLayers
-                    key={'group-layers-' + i}
-                    sl={saveLayersSate}
-                    map={map}
-                    name={layer}
-                    activeLayers={activeLayers[layer]}
-                    layers={groupedOverlays[layer]}
-                    DetailsPopupL={DetailsPopupL}
-                    reset={reset} />
-                );
-              })}
+              {groupLayers}
             </div>
           </div>
         </div>
@@ -283,18 +285,7 @@ class Layers extends Component {
             </div>
             <div className="overlays">
               {/*<BaseLayers map={map} />*/}
-              {Object.keys(groupedOverlays).map(function (layer, i) {
-                return (
-                  <GroupLayers
-                    key={'group-layers-' + i}
-                    sl={saveLayersSate}
-                    map={map}
-                    name={layer}
-                    activeLayers={activeLayers[layer]}
-                    layers={groupedOverlays[layer]}
-                    reset={reset} />
-                );
-              })}
+              {groupLayers}
             </div>
             <div className="form-actions">
               <button className="reset form-submit"

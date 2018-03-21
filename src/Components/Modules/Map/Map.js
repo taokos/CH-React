@@ -13,6 +13,7 @@ let address = '', googleApiKey = '', checkedLayers={};
 
 const fieldsMapping = {
   'Property Information': [
+    {title: '', fields: ['address'], prefix: '', suffix: ''},
     {title: '', fields: ['place'], prefix: '', suffix: ''},
     {title: '', fields: ['landUse'], prefix: '', suffix: ''},
     {title: '', fields: ['id'], prefix: '', suffix: ''},
@@ -133,6 +134,8 @@ class DetailsMap extends React.Component {
   }
 
   showPropertyDetails() {
+    this.props.layer.closePopup();
+    this.props.layer.unbindPopup();
     this.props.renderPopup(this.props.data, this.props.e);
   }
 
@@ -149,7 +152,7 @@ class DetailsMap extends React.Component {
     return(
       <div>
         <div className="popup-header">
-          <h3 className="head-title" onClick={this.showPropertyDetails}>{item.title[0]}<i class="icon-b icon-b-ic-shere"></i></h3>
+          <h3 className="head-title" onClick={this.showPropertyDetails}>{typeof item.title === 'object' ? item.title[0] : item.title}<i class="icon-b icon-b-ic-shere"></i></h3>
           <div className="ssl"><span>SSL:</span>{item.folioNumber}</div>
         </div>
         <div className="tabs">
@@ -264,6 +267,7 @@ class LMap extends React.Component {
 
       // Render popup.
       function renderPopup(data, e) {
+        newLeayer.unbindPopup();
         popupData['data'] = data;
         popupData['fields'] = fieldsMapping;
         popupData['address'] = address;
@@ -296,6 +300,8 @@ class LMap extends React.Component {
           popupData['lng'] = lngLan[0];
           popupData['lat'] = lngLan[1];
         }
+        newLeayer.closePopup();
+        newLeayer.unbindPopup();
         newLeayer.addTo(map);
         map.eachLayer(function (layer) {
           if ('options' in layer && 'options' in newLeayer &&  layer.options.type ===  'property-layer') {
@@ -304,7 +310,7 @@ class LMap extends React.Component {
         });
       }
 
-      if (type === 'details') {
+      function renderDetailsPopup(data, e) {
         hide();
         map.fitBounds(newLeayer.getBounds());
         newLeayer.addTo(map);
@@ -322,6 +328,15 @@ class LMap extends React.Component {
           }
         });
         newLeayer.openPopup();
+      }
+
+      newLeayer.on('click',function(e) {
+        renderPopup(data, e);
+        e.target.unbindPopup();
+      });
+
+      if (type === 'details') {
+        renderDetailsPopup(data, e);
       }
     }
   }
@@ -358,6 +373,7 @@ class LMap extends React.Component {
     // Add property layer and open popup with property info.
     map.on('click', function(e) {
       openPopup(e, this);
+      e.target.closePopup();
     });
 
     map.on('contextmenu',function(e){
