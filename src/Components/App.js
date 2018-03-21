@@ -41,7 +41,7 @@ class App extends React.Component {
       <Route path="/us/:p1/:p2" component={Doc}/>
     </Switch>;
 
-    if (!process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'development') {
       let isMapPage = false;
       if (typeof window !== 'undefined' && window.location.protocol + '//' + window.location.host === process.env.REACT_APP_MAP_URL) {
         isMapPage = true;
