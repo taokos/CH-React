@@ -8,8 +8,18 @@ import MapSearch from './Elements/MapSearch.js';
 import _ from 'underscore';
 
 const urlSettings = '?action=_property_record&type=_property_record&geometryFormat=json&rows=1&offset=0&ignoreStatus=&indent=&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN + '&';
+const requestSettings = {
+  'Property Information': '?action=_property_record&type=_property_record&geometryFormat=json&rows=1&offset=0&ignoreStatus=&indent=&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN + '&',
+  'Transit': '?action=_transit_stop&type=_transit_stop&geometryFormat=json&rows=1&offset=0&ignoreStatus=&indent=&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN + '&',
+  'Planning & Community Development': '?action=_property_record&type=_property_record&geometryFormat=json&rows=1&offset=0&ignoreStatus=&indent=&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN + '&',
+  'Administrative / Regulatory': '?action=_school&type=_school&geometryFormat=json&rows=1&offset=0&ignoreStatus=&indent=&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN + '&',
+  'Assessments': '?action=_tax&type=_tax&geometryFormat=none&order_by=taxYear&sort_order=desc&rows=1&offset=0&ignoreStatus=&indent=&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN + '&',
+  'Sales History': '?action=_recorded_sale&type=_recorded_sale&order_by=saleDate&sort_order=desc&geometryFormat=json&rows=1&offset=0&ignoreStatus=&indent=&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN + '&'
+};
 
-let address = '', googleApiKey = '', checkedLayers={};
+const propertySectionName = 'Property Information';
+
+let address = '', googleApiKey = '', checkedLayers={}, popupResults = {}, allResults = {};
 
 const fieldsMapping = {
   'Property Information': [
@@ -17,6 +27,7 @@ const fieldsMapping = {
     {title: '', fields: ['landUse'], prefix: '', suffix: ''},
     {title: '', fields: ['id'], prefix: '', suffix: ''},
     {title: '', fields: ['title'], prefix: '', suffix: ''},
+    {title: '', fields: ['floodZone'], prefix: '', suffix: ''},
     {title: 'Folio', fields: ['folioNumber'], prefix: '', suffix: ''},
     {title: 'Address', fields: ['title','city','state', 'postalCode'], prefix: '', suffix: ''},
     {title: 'Owner(s)', fields: ['primary_owners'], prefix: '', suffix: ''},
@@ -38,38 +49,42 @@ const fieldsMapping = {
     {title: 'Places - City', fields: ['city'], prefix: '', suffix: ''},
     {title: 'Places - County', fields: ['county'], prefix: '', suffix: ''},
   ],
-  'Transit': [
-    {title: 'Buses', fields: ['county'], prefix: '', suffix: ''},
-    {title: 'Trains', fields: ['county'], prefix: '', suffix: ''},
-    {title: 'Airport - County', fields: ['county'], prefix: '', suffix: ''},
-  ],
-  'Planning & Community Development': [
-    {title: 'FEMA Flood Zone', fields: ['floodZone'], prefix: '', suffix: ''},
-  ],
+  // @todo needs to implement subcategories.
+  // 'Transit': [
+  //   {title: 'Buses', fields: ['county1'], prefix: '', suffix: ''},
+  //   {title: 'Trains', fields: ['county2'], prefix: '', suffix: ''},
+  //   {title: 'Airport - County', fields: ['county3'], prefix: '', suffix: ''},
+  // ],
+  // 'Planning & Community Development': [
+  //   {title: 'FEMA Flood Zone', fields: ['floodZone'], prefix: '', suffix: ''},
+  // ],
   'Administrative / Regulatory': [
     {title: 'Assigned Elementary School', fields: ['name'], prefix: '', suffix: ''},
     {title: 'School grades, capacity, enrollment, school rating', fields: ['schoolGradesName','capacity', 'schoolEnroll', 'currentGrade'], prefix: '', suffix: ''},
-    {title: 'Assigned Middle School', fields: ['name'], prefix: '', suffix: ''},
-    {title: 'School grades, capacity, enrollment, school rating', fields: ['schoolGradesName','capacity', 'schoolEnroll', 'currentGrade'], prefix: '', suffix: ''},
-    {title: 'Assigned High School', fields: ['name'], prefix: '', suffix: ''},
-    {title: 'School grades, capacity, enrollment, school rating', fields: ['schoolGradesName','capacity', 'schoolEnroll', 'currentGrade'], prefix: '', suffix: ''},
+    // @todo needs to implement subcategories.
+    // {title: 'Assigned Middle School', fields: ['name'], prefix: '', suffix: ''},
+    // {title: 'School grades, capacity, enrollment, school rating', fields: ['schoolGradesName','capacity', 'schoolEnroll', 'currentGrade'], prefix: '', suffix: ''},
+    // {title: 'Assigned High School', fields: ['name'], prefix: '', suffix: ''},
+    // {title: 'School grades, capacity, enrollment, school rating', fields: ['schoolGradesName','capacity', 'schoolEnroll', 'currentGrade'], prefix: '', suffix: ''},
   ],
   'Assessments': [
     {title: 'Just Land Value', fields: ['landValue'], prefix: '', suffix: ''},
     {title: 'Just Building Value', fields: ['buildingValue'], prefix: '', suffix: ''},
     {title: 'Just Other Value', fields: ['extraFeatureValue'], prefix: '', suffix: ''},
     {title: 'Current Just / Market Value', fields: ['marketValue'], prefix: '', suffix: ''},
-    {title: 'Last Year\'s Just / Market Value', fields: ['marketValue'], prefix: '', suffix: ''},
+    // @todo needs to implement subcategories.
+    // {title: 'Last Year\'s Just / Market Value', fields: ['marketValue'], prefix: '', suffix: ''},
     {title: 'Current Assessed / Save Our Home Value', fields: ['assessedValue'], prefix: '', suffix: ''},
-    {title: 'Last Year\'s Assessed / Save Our Home Value', fields: ['assessedValue'], prefix: '', suffix: ''},
+    // @todo needs to implement subcategories.
+    // {title: 'Last Year\'s Assessed / Save Our Home Value', fields: ['assessedValue'], prefix: '', suffix: ''},
     {title: 'City Taxable Value', fields: ['cityTax'], prefix: '', suffix: ''},
     {title: 'County Taxable Value', fields: ['countyTax'], prefix: '', suffix: ''},
     {title: 'School Taxable Value', fields: ['schoolTax'], prefix: '', suffix: ''},
   ],
   'Sales History': [
     {title: '1st Sale Date', fields: ['saleDate'], prefix: '', suffix: ''},
-    {title: '1st Sale Amount', fields: ['price'], prefix: '', suffix: ''},
-    {title: 'Avg Price per Sq Ft', fields: ['pricePerPropertysf'], prefix: '', suffix: ''},
+    {title: '1st Sale Amount', fields: ['price'], prefix: '$', suffix: ''},
+    {title: 'Avg Price per Sq Ft', fields: ['pricePerPropertysf'], prefix: '$', suffix: ' ft²'},
     {title: '1st Deed Type', fields: ['transferCode'], prefix: '', suffix: ''},
   ]
 };
@@ -128,9 +143,9 @@ class DetailsMap extends React.Component {
   }
 
   render() {
-    const item = this.props.data.data.items[0],
+    const item = popupResults[propertySectionName].data.items[0],
       map = this.props.map;
-    const DetailsPopupL = this.props.data.data.items[0]['landUse'].concat(this.props.data.data.items[0]['__extra__']['place']['raw']);
+    const DetailsPopupL = item['landUse'].concat(item['__extra__']['place']['raw']);
     return(
       <div>
         <div className={'head-title'} onClick={this.showPropertyDetails}>{item.title[0]} </div>
@@ -187,7 +202,7 @@ class LMap extends React.Component {
   }
 
   getPropertyLayer(key) {
-    let fieldsRequest = this.prepareFieldsRequest('Property Information');
+    let fieldsRequest = this.prepareFieldsRequest(propertySectionName);
 
     fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'address=' + key)
     .then(results => results.json())
@@ -205,17 +220,17 @@ class LMap extends React.Component {
         lat: '',
       },
       layerExist  = false;
-
-    if (data && 'data' in data && 'items' in data.data && data.data.items[0]) {
+    const propertyData = popupResults[propertySectionName];
+    if (propertyData && 'data' in propertyData && 'items' in propertyData.data && propertyData.data.items[0]) {
       const shape = {
         'type': 'Feature',
         'geometry': {
-          'type': data.data.items[0].gisData.geom.type ? data.data.items[0].gisData.geom.type : 'Poligon',
-          'coordinates': data.data.items[0].gisData.geom.coordinates ? data.data.items[0].gisData.geom.coordinates : ''
+          'type': propertyData.data.items[0].gisData.geom.type ? propertyData.data.items[0].gisData.geom.type : 'Poligon',
+          'coordinates': propertyData.data.items[0].gisData.geom.coordinates ? propertyData.data.items[0].gisData.geom.coordinates : ''
         }
       };
 
-      const newLeayer =  L.geoJson(shape, {type:'property-layer', key:'property-layer-' + data.data.items[0].id});
+      const newLeayer =  L.geoJson(shape, {type:'property-layer', key:'property-layer-' + propertyData.data.items[0].id});
 
       // Remove current property layer if needed.
       map.eachLayer(function (layer) {
@@ -245,7 +260,8 @@ class LMap extends React.Component {
 
       // Render popup.
       function renderPopup(data, e) {
-        popupData['data'] = data;
+        const propertyData = popupResults[propertySectionName];
+        popupData['data'] = popupResults;
         popupData['fields'] = fieldsMapping;
         popupData['address'] = address;
         popupData['googleApiKey'] = googleApiKey;
@@ -254,8 +270,8 @@ class LMap extends React.Component {
           popupData['lat'] = e.latlng.lat;
           map.fitBounds(newLeayer.getBounds());
         }
-        else if ('data' in data && 'items' in data.data && data.data.items[0] && 'gisData' in data.data.items[0] && 'geom' in data.data.items[0].gisData) {
-          const lngLan = data.data.items[0].gisData.geom.coordinates[0][0];
+        else if ('data' in propertyData && 'items' in propertyData.data && propertyData.data.items[0] && 'gisData' in propertyData.data.items[0] && 'geom' in propertyData.data.items[0].gisData) {
+          const lngLan = propertyData.data.items[0].gisData.geom.coordinates[0][0];
           map.fitBounds(newLeayer.getBounds());
           popupData['lng'] = lngLan[0];
           popupData['lat'] = lngLan[1];
@@ -272,8 +288,8 @@ class LMap extends React.Component {
           popupData['lng'] = e.latlng.lng;
           popupData['lat'] = e.latlng.lat;
         }
-        else if ('data' in data && 'items' in data.data && data.data.items[0] && 'gisData' in data.data.items[0] && 'geom' in data.data.items[0].gisData) {
-          const lngLan = data.data.items[0].gisData.geom.coordinates[0][0];
+        else if ('data' in propertyData && 'items' in propertyData.data && propertyData.data.items[0] && 'gisData' in propertyData.data.items[0] && 'geom' in data.data.items[0].gisData) {
+          const lngLan = propertyData.data.items[0].gisData.geom.coordinates[0][0];
           popupData['lng'] = lngLan[0];
           popupData['lat'] = lngLan[1];
         }
@@ -319,21 +335,48 @@ class LMap extends React.Component {
       map: map
     });
 
-
     function openPopup(e, map, type) {
-      let fieldsRequest = _.values(_.mapObject(
-        fieldsMapping['Property Information'], (val, key) =>
-          val.fields.map((result) => {
-            return 'fields[]=' + result + '&';
-          })
-      )).join('');
+      popupResults = {};
+      let fieldsRequest = that.prepareFieldsRequest(propertySectionName);
+      fetch(process.env.REACT_APP_API + '/api/ui-api' + requestSettings[propertySectionName] + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
+        .then(results => results.json())
+        .then(data => popupResults[propertySectionName] = {data})
+        .then(data => loadAdditionalData(e, map, type))
+        .catch(function (e) {
+          console.error(e);
+        });
+    }
 
-      fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
-      .then(results => results.json())
-      .then(data => that.propertyLayer(map, {data}, e, that, type))
-      .catch(function (e) {
-        console.error(e);
-      });
+    function loadAdditionalData(e, map, type) {
+      if (type === 'details') {
+        that.propertyLayer(map, {popupResults}, e, that, type);
+      }
+      else {
+        let folio = '';
+        if (
+          typeof popupResults[propertySectionName]['data'] !== 'undefined'
+          && typeof popupResults[propertySectionName]['data']['items'] !== 'undefined'
+          && typeof popupResults[propertySectionName]['data']['items'][0] !== 'undefined'
+          && typeof popupResults[propertySectionName]['data']['items'][0]['folioNumber'] !== 'undefined'
+        ) {
+          folio = popupResults[propertySectionName]['data']['items'][0]['folioNumber'];
+        }
+        let fetches = [];
+        let mapping = Object.assign({}, fieldsMapping);
+        delete mapping[propertySectionName];
+        _.mapObject(mapping, function (value, key) {
+          let fieldsRequest = that.prepareFieldsRequest(key);
+          fetches.push(fetch(process.env.REACT_APP_API + '/api/ui-api' + requestSettings[key] + fieldsRequest + 'folio_by_id=' + folio + '&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
+            .then(results => results.json())
+            .then(data => popupResults[key] = {data})
+            .catch(function (e) {
+              console.error(e);
+            })
+          );
+          return fetches;
+        });
+        Promise.all(fetches).then(data => that.propertyLayer(map, {data}, e, that, type));
+      }
     }
 
     // Add property layer and open popup with property info.
