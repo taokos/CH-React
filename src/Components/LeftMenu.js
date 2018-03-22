@@ -86,9 +86,24 @@ class LeftMenu extends Component {
     document.body.classList.toggle('expanded-menu', !this.state.expanded);
   }
 
+  isMapPage() {
+    if (process.env.NODE_ENV !== 'development') {
+      return window !== 'undefined' && window.location.protocol + '//' + window.location.host === process.env.REACT_APP_MAP_URL;
+    }
+    return history.location.pathname.indexOf(this.map);
+  }
+
   isActive(url) {
-    if (history.location.pathname === url) {
-      return ' active';
+    if (process.env.NODE_ENV !== 'development') {
+      if (this.isMapPage() && url === 'map' || url === 'doc' && !this.isMapPage()) {
+        return ' active';
+      }
+    }
+    else {
+      const pathname = history.location.pathname.split('/');
+      if (url === pathname[1] || url === 'doc' && pathname[1] !== 'map') {
+        return ' active';
+      }
     }
     return '';
   }
@@ -104,11 +119,11 @@ class LeftMenu extends Component {
           </section>
         ) : ''}
         <nav className="ch-top-menu">
-          <a href={this.map} className={"map" + this.isActive(this.map)}>
+          <a href={this.map} className={"map" + this.isActive('map')}>
             <i className="icon-b icon-b-ic-properties"></i>
             <span className="title">Properties</span>
           </a>
-          {history.location.pathname.indexOf(this.map) > -1 && (
+          {this.isMapPage() && (
             <a onClick={(e) => this.props.toggleLink(e, 'showLayers')} href="/" className={"layers" + (this.props.showLayers ? ' active' : '')}>
               <i className="icon-b icon-b-ic-layers"></i>
               <span className="title">Layers</span>
@@ -134,14 +149,14 @@ class LeftMenu extends Component {
                   </a>
                 </li>
                 <li>
-                  <a href={siteUrl + this.map} className={"map" + this.isActive(this.map)}>
+                  <a href={siteUrl + this.map} className={"map" + this.isActive('map')}>
                     <i className="icon-b icon-b-ic-3-d-map-logo">
                     </i>
                     <span className="title">Map</span>
                   </a>
                 </li>
                 <li>
-                  <a href={siteUrl + this.doc} className={"codehub" + this.isActive(this.doc)}>
+                  <a href={siteUrl + this.doc} className={"codehub" + this.isActive('doc')}>
                     <i className="icon-b icon-b-ic-codehub"></i>
                     <span className="title">CodeHub</span>
                   </a>
