@@ -54,7 +54,8 @@ class MapPopup extends React.Component {
       cityAddress += ', ' + item;
     });
 
-    const item = popupData.data.data.items[0];
+    const values = this.props.popupData.data;
+    const item = values['Property Information'].data.items[0];
     const googleMapsApiKey = popupData['googleApiKey'];
     const activeTab = this.state.activeTab;
     const streetViewPanoramaOptions = {
@@ -85,15 +86,15 @@ class MapPopup extends React.Component {
           </button>
         </div>
         <div className="tabs">
-          <a href="#properties" className={"properties-tab-link" + (activeTab == 'properties' ? ' active' : '')} onClick={(e) => this.switchTab(e, 'properties')}>
+          <a href="#properties" className={"properties-tab-link" + (activeTab === 'properties' ? ' active' : '')} onClick={(e) => this.switchTab(e, 'properties')}>
             Property Details
           </a>
-          <a href="#zoning" className={"zoning-tab-link" + (activeTab == 'zoning' ? ' active' : '')} onClick={(e) => this.switchTab(e, 'zoning')}>
+          <a href="#zoning" className={"zoning-tab-link" + (activeTab === 'zoning' ? ' active' : '')} onClick={(e) => this.switchTab(e, 'zoning')}>
             Zoning Allowances
           </a>
         </div>
         <div className="overlay-content">
-          <div className={"properties-tab tab" + (activeTab == 'properties' ? '' : ' hide')}>
+          <div className={"properties-tab tab" + (activeTab === 'properties' ? '' : ' hide')}>
             <div className="street-view" style={{'height':'200px'}}>
               <StreetView
                 apiKey={googleMapsApiKey}
@@ -106,6 +107,16 @@ class MapPopup extends React.Component {
             <div className="tables">
               {
                 _.values(_.mapObject(popupData.fields, function (value, key) {
+                  let currentValues = null;
+                  if (key in values
+                    && typeof values[key]['data'] !== 'undefined'
+                    && typeof values[key].data.items !== 'undefined'
+                    && values[key].data.items.length > 0) {
+                    currentValues = values[key].data.items[0];
+                  }
+                  else {
+                    return '';
+                  }
                   let i = 0;
                   return (
                     <div key={key} className="table">
@@ -117,19 +128,19 @@ class MapPopup extends React.Component {
                           _.values(_.mapObject(value, function (value, key) {
                             let hasResult = value.fields.filter(
                               function(field) {
-                                return (field in item) && item[field] != null;
+                                return (field in currentValues) && currentValues[field] != null;
                               }
                             );
                           if (value.title !== '' && hasResult.length > 0) {
                             i++;
                             let result = hasResult.map((resultField) => {
-                              if (typeof item[resultField] === 'object') {
-                                item[resultField] = item[resultField].join(', ');
+                              if (typeof currentValues[resultField] === 'object') {
+                                currentValues[resultField] = currentValues[resultField].join(', ');
                               }
-                              return item[resultField];
+                              return currentValues[resultField];
                             }).join(', ');
                             return (
-                              <div key={'field-' + value.fields.join('-')} className={'item ' + (i % 2 == 0 ? 'even' : 'odd')}>
+                              <div key={'field-' + value.fields.join('-')} className={'item ' + (i % 2 === 0 ? 'even' : 'odd')}>
                                 <span className="lbl">{value.title}:</span>
                                 <span className="value">
                                   {value.prefix}
