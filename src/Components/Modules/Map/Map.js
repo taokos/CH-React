@@ -386,21 +386,21 @@ class LMap extends React.Component {
         that.propertyLayer(map, {popupResults}, e, that, type);
       }
       else {
-        let folio = '';
+        let id = '';
         if (
           typeof popupResults[propertySectionName]['data'] !== 'undefined'
           && typeof popupResults[propertySectionName]['data']['items'] !== 'undefined'
           && typeof popupResults[propertySectionName]['data']['items'][0] !== 'undefined'
-          && typeof popupResults[propertySectionName]['data']['items'][0]['folioNumber'] !== 'undefined'
+          && typeof popupResults[propertySectionName]['data']['items'][0]['id'] !== 'undefined'
         ) {
-          folio = popupResults[propertySectionName]['data']['items'][0]['folioNumber'];
+          id = popupResults[propertySectionName]['data']['items'][0]['id'];
         }
         let fetches = [];
         let mapping = Object.assign({}, fieldsMapping);
         delete mapping[propertySectionName];
         _.mapObject(mapping, function (value, key) {
           let fieldsRequest = that.prepareFieldsRequest(key);
-          fetches.push(fetch(process.env.REACT_APP_API + '/api/ui-api' + requestSettings[key] + fieldsRequest + 'folio_by_id=' + folio + '&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
+          fetches.push(fetch(process.env.REACT_APP_API + '/api/ui-api' + requestSettings[key] + fieldsRequest + 'folio_by_id=' + id + '&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
             .then(results => results.json())
             .then(data => popupResults[key] = {data})
             .catch(function (e) {
