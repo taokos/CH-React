@@ -1,12 +1,10 @@
 import React from 'react';
 import {BrowserRouter, Route, Switch} from "react-router-dom";
-import HelpCenter from './HelpCenter';
+import HelpCenter from './Modules/HelpCenter/HelpCenter';
 import Utilities from '../Utilities/Utilities.js';
 import _ from 'underscore';
-
-
-import LMap from './Map';
-import Doc from './Doc';
+import LMap from './Modules/Map/Map';
+import Doc from './Modules/Doc/Doc';
 import LeftMenu from './LeftMenu';
 
 // For development use only.
@@ -38,6 +36,28 @@ class App extends React.Component {
 
   render() {
     const showLayers = this.state.showLayers;
+    let routes = <Switch>
+      <Route path="/map/us/:p1/:p2" exact render={props=><LMap toggleLink={this.toggleLink} showLayers={showLayers} {...props}/>} />
+      <Route path="/us/:p1/:p2" component={Doc}/>
+    </Switch>;
+
+    if (process.env.NODE_ENV !== 'development') {
+      let isMapPage = false;
+      if (typeof window !== 'undefined' && window.location.protocol + '//' + window.location.host === process.env.REACT_APP_MAP_URL) {
+        isMapPage = true;
+      }
+      routes = <Route path="/us/:p1/:p2" exact render={props => {
+        if (isMapPage) {
+          return (<LMap toggleLink={this.toggleLink}
+                showLayers={showLayers} {...props}/>);
+        }
+        else {
+          return (<Doc {...props}/>);
+        }
+      }}
+      />;
+    }
+
     return (
       <BrowserRouter>
         <div  className="ch">
@@ -47,10 +67,8 @@ class App extends React.Component {
             showHelp={this.state.showHelp}
           />
           <HelpCenter toggleLink={this.toggleLink} showHelp={this.state.showHelp} />
-          <Switch>
-            <Route path="/map/us/:p1/:p2" exact render={props=><LMap toggleLink={this.toggleLink} showLayers={showLayers} {...props}/>} />
-            <Route path="/us/:p1/:p2" component={Doc}/>
-          </Switch>
+          {routes}
+          <div id="popup-container" />
         </div>
       </BrowserRouter>
     );

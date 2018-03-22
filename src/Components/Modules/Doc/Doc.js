@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
-import SearchBox from './SearchBox';
+import ReactDOM from 'react-dom';
+import SearchBox from './Elements/SearchBox';
 import TreeView from 'react-simple-jstree';
 import $ from 'jquery';
 import HtmlToReact from 'html-to-react';
+import CopyPopup from './Elements/CopyPopup';
 
 const htmlToReactParser = new HtmlToReact.Parser(React);
 const apiURL = process.env.REACT_APP_SETTINGS_URL + '/api/v1/codehub/0';
@@ -141,7 +143,7 @@ class Doc extends Component {
     let text = [];
     if (objNode.text) {
       // Add with share link.
-      text.push('<div><strong>' + objNode.text + '</strong><span class="share" data-id="'+objNode.id+'">Share</span><br /></div>');
+      text.push('<div><strong>' + objNode.text + '</strong><span className="share" data-id="'+objNode.id+'">Share</span><br /></div>');
     }
     if (objNode && objNode.children && objNode.children.length > 0) {
       this.getTextRecursively(data, objNode.children, text);
@@ -151,17 +153,12 @@ class Doc extends Component {
   }
 
   bindShareClick(e) {
-    let elId = e.target.getAttribute('data-id');
+    e.preventDefault();
+    let elId = e.currentTarget.getAttribute('data-id');
     let path = $(this.treeContainer).jstree('get_node', elId);
     path = path['li_attr']['path'];
-    // @todo should be popup :).
-    alert(
-      window.location.protocol
-      + '//' + window.location.host
-      + window.location.pathname
-      + '#'
-      + path
-    );
+    const value = window.location.protocol + '//' + window.location.host + window.location.pathname + '#' + path;
+    ReactDOM.render(<CopyPopup value={value} />, document.getElementById('popup-container'));
   }
 
   getTextRecursively(data, el, text) {
@@ -196,7 +193,7 @@ class Doc extends Component {
         else {
           if (child.li_attr && (child.li_attr.dataTag === 'subsection' || child.li_attr.dataTag === 'section')) {
             // Add with share link.
-            text.push('<p class="bold">' + child.text + '<span class="share" data-id="'+child.id+'">Share</span></p>');
+            text.push('<p className="bold">' + child.text + '<span className="share" data-id="'+child.id+'">Share</span></p>');
           }
           else {
             text.push('<p>' + child.text + '</p>');
@@ -231,16 +228,15 @@ class Doc extends Component {
           return node.parent && node.parent.name
             && node.parent.name === 'span'
             && node.parent.attribs
-            && node.parent.attribs.class
-            && node.parent.attribs.class == 'share'
-            ;
+            && node.parent.attribs.classname
+            && node.parent.attribs.classname === 'share';
         },
         processNode: (node, children) => {
           let el =  React.createElement('a', {
               'href': '#share',
               'onClick': this.bindShareClick.bind(this),
               'data-id': node.parent.attribs['data-id']
-            }, 'Share');
+            }, <i class="icon-b icon-b-chain"></i>);
           return el;
         }
       }, {

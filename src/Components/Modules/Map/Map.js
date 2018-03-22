@@ -1,7 +1,7 @@
 import React, {Fragment} from 'react';
 import ReactDOM from 'react-dom';
 import L from 'leaflet';
-import Layers from './Layers.js';
+import Layers from './Elements/Layers.js';
 import MapPopup from "./Elements/MapPopup.js";
 import BaseLayer from './Elements/BaseLayer.js';
 import MapSearch from './Elements/MapSearch.js';
@@ -23,6 +23,7 @@ let address = '', googleApiKey = '', checkedLayers={}, popupResults = {}, allRes
 
 const fieldsMapping = {
   'Property Information': [
+    {title: '', fields: ['address'], prefix: '', suffix: ''},
     {title: '', fields: ['place'], prefix: '', suffix: ''},
     {title: '', fields: ['landUse'], prefix: '', suffix: ''},
     {title: '', fields: ['id'], prefix: '', suffix: ''},
@@ -93,24 +94,31 @@ class ActiveChecboxes extends React.Component {
   render() {
     return (
       <div>
-      {_.values(_.mapObject(checkedLayers, function(grop, title) { let failter = false;
-        {_.values(_.mapObject(grop, function(status, filter) {
-          if(status) {
-            failter = true;
+      {
+        _.values(_.mapObject(checkedLayers, function(grop, title) {
+          let failter = false;
+          {_.values(_.mapObject(grop, function(status, filter) {
+            if(status) {
+              failter = true;
+            }
+          }))}
+          if (failter) {
+            return(
+              <div key={title}><div className={'group-layers'}>{title}</div>
+                {_.values(_.mapObject(grop, function(status, filter) {
+                  if(status) return(
+                    <div>{filter}</div>
+                  );
+                  else return('');
+                }))}
+              </div>
+            );
           }
-        }));}
-        if (failter) {
-        return(
-          <div key={title}><div className={'group-layers'}>{title}</div>
-            {_.values(_.mapObject(grop, function(status, filter) {
-              if(status) return(
-                <div>{filter}</div>
-              );
-              else return('');
-            }))}
-          </div>
-        );} else {return('');}
-      }))}
+          else {
+            return('');
+          }
+        }))
+      }
       </div>
     );
   }
@@ -122,8 +130,10 @@ class DetailsMap extends React.Component {
 
     this.state = {
       activeLayers: {},
-      settings:{}
+      settings:{},
+      activeTab: 'activated'
     };
+
     let settings = {};
     settings[this.props.layer._leaflet_id] = this.props;
     if ('layer' in this.props) {
@@ -139,23 +149,35 @@ class DetailsMap extends React.Component {
   }
 
   showPropertyDetails() {
+    this.props.layer.closePopup();
+    this.props.layer.unbindPopup();
     this.props.renderPopup(this.props.data, this.props.e);
+  }
+
+  switchTab(e, tab) {
+    e.preventDefault();
+    this.setState({activeTab: tab});
   }
 
   render() {
     const item = popupResults[propertySectionName].data.items[0],
       map = this.props.map;
-    const DetailsPopupL = item['landUse'].concat(item['__extra__']['place']['raw']);
+    const DetailsPopupL = this.props.data.data.items[0]['landUse'].concat(this.props.data.data.items[0]['__extra__']['place']['raw']);
+    const activeTab = this.state.activeTab;
     return(
       <div>
-        <div className={'head-title'} onClick={this.showPropertyDetails}>{item.title[0]} </div>
-        <div className={'ssl'}><span>SSL:</span>{item.folioNumber} </div>
-        <div className={'list-active-layers'}>
-          <span>Activaded Layers</span>
+        <div className="popup-header">
+          <h3 className="head-title" onClick={this.showPropertyDetails}>{typeof item.title === 'object' ? item.title[0] : item.title}<i class="icon-b icon-b-ic-shere"></i></h3>
+          <div className="ssl"><span>SSL:</span>{item.folioNumber}</div>
+        </div>
+        <div className="tabs">
+          <a href="#actived-layers" className={(activeTab == 'activated' ? ' active' : '')} onClick={(e) => this.switchTab(e, 'activated')}>Activated Layers</a>
+          <a href="#all-layers" className={(activeTab == 'all' ? ' active' : '')} onClick={(e) => this.switchTab(e, 'all')}>All Applicable Layers</a>
+        </div>
+        <div className={"list-active-layers" + (activeTab == 'activated' ? '' : ' hide')}>
           <ActiveChecboxes />
         </div>
-        <div className={'list-layers'}>
-          <span>All Applicable Layers</span>
+        <div className={"list-layers" + (activeTab == 'all' ? '' : ' hide')}>
           <Layers
             map={map}
             {...this.props}
@@ -262,6 +284,8 @@ class LMap extends React.Component {
       function renderPopup(data, e) {
         const propertyData = popupResults[propertySectionName];
         popupData['data'] = popupResults;
+        newLeayer.unbindPopup();
+        popupData['data'] = data;
         popupData['fields'] = fieldsMapping;
         popupData['address'] = address;
         popupData['googleApiKey'] = googleApiKey;
@@ -293,6 +317,8 @@ class LMap extends React.Component {
           popupData['lng'] = lngLan[0];
           popupData['lat'] = lngLan[1];
         }
+        newLeayer.closePopup();
+        newLeayer.unbindPopup();
         newLeayer.addTo(map);
         map.eachLayer(function (layer) {
           if ('options' in layer && 'options' in newLeayer &&  layer.options.type ===  'property-layer') {
@@ -301,7 +327,7 @@ class LMap extends React.Component {
         });
       }
 
-      if (type === 'details') {
+      function renderDetailsPopup(data, e) {
         hide();
         map.fitBounds(newLeayer.getBounds());
         newLeayer.addTo(map);
@@ -319,6 +345,15 @@ class LMap extends React.Component {
           }
         });
         newLeayer.openPopup();
+      }
+
+      newLeayer.on('click',function(e) {
+        renderPopup(data, e);
+        e.target.unbindPopup();
+      });
+
+      if (type === 'details') {
+        renderDetailsPopup(data, e);
       }
     }
   }
@@ -382,6 +417,7 @@ class LMap extends React.Component {
     // Add property layer and open popup with property info.
     map.on('click', function(e) {
       openPopup(e, this);
+      e.target.closePopup();
     });
 
     map.on('contextmenu',function(e){
