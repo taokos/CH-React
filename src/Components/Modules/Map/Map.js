@@ -93,7 +93,7 @@ const fieldsMapping = {
 class ActiveChecboxes extends React.Component {
   render() {
     return (
-      <div>
+      <div className="active-layers-wrapper">
       {
         _.values(_.mapObject(checkedLayers, function(grop, title) {
           let failter = false;
@@ -104,7 +104,7 @@ class ActiveChecboxes extends React.Component {
           }))}
           if (failter) {
             return(
-              <div key={title}><div className={'group-layers'}>{title}</div>
+              <div className="group" key={title}><div className={'group-layers'}>{title}</div>
                 {_.values(_.mapObject(grop, function(status, filter) {
                   if(status) return(
                     <div>{filter}</div>

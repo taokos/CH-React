@@ -90,7 +90,7 @@ class LeftMenu extends Component {
     if (process.env.NODE_ENV !== 'development') {
       return window !== 'undefined' && window.location.protocol + '//' + window.location.host === process.env.REACT_APP_MAP_URL;
     }
-    return history.location.pathname.indexOf(this.map);
+    return history.location.pathname.indexOf(this.map) > -1;
   }
 
   isActive(url) {
