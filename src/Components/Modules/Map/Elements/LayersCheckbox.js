@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import LoadGeoJSON from "../Plugins/GeoJSONLayer";
+import _ from 'underscore';
 
 export default class LayersCheckbox extends Component {
 
@@ -27,18 +28,45 @@ export default class LayersCheckbox extends Component {
     this.props.onChange(this, this.props.id, newState);
   }
 
+  findLayerOnMap() {
+    const that = this;
+    this.props.map.eachLayer(function (layer) {
+      if ('options' in layer && layer.options['layerId'] ===  that.props.id) {
+        return layer;
+      }
+    });
+  };
+
+
   switchCheckbox(newState) {
     if (newState && !this.isToggleOn) {
-      let layer = this.state.added;
-      if (!layer) {
-        layer = LoadGeoJSON(this.props.layer.apiUrl, this.props.layer.options);
-      }
-      const added = layer.addTo(this.props.map);
-      this.setState({
-        added: added,
-        isToggleOn: newState
+      let layer = this.state.added, i = 0, layerExist = false;
+      const map = this.props.map, that = this, countLayers = Object.keys(map._layers).length;
+      _.mapObject(map._layers, (mapLayer) => {
+        i++;
+        if ('options' in mapLayer && mapLayer.options['layerId'] ===  that.props.id) {
+          layerExist = mapLayer;
+        }
+        if (countLayers === i) {
+          if (!layerExist) {
+            let option = that.props.layer.options;
+            option['layerId'] = that.props.id;
+            layer = LoadGeoJSON(this.props.layer.apiUrl, option);
+            const added = layer.addTo(this.props.map);
+            this.setState({
+              added: added,
+              isToggleOn: newState
+            });
+            this.isToggleOn = true;
+          }
+          else {
+            this.setState({
+              added: layerExist,
+              isToggleOn: newState
+            });
+          }
+        }
       });
-      this.isToggleOn = true;
     }
     else {
       if (this.state.added) {

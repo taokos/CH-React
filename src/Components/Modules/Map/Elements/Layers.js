@@ -49,7 +49,7 @@ class GroupLayers extends Component {
       checkedLayers[val] = false;
     });
     if (typeof this.props.activeLayers !== 'undefined') {
-      checkedLayers = checkedLayers !== this.props.activeLayers ? this.props.activeLayers : checkedLayers;
+      checkedLayers = this.props.activeLayers ? this.props.activeLayers : checkedLayers;
     }
     this.state = {
       ckeckAll: false,
@@ -136,6 +136,7 @@ class GroupLayers extends Component {
         <div
           className={"collapsible-group layers-group" + (this.state.collapsed ? ' collapsed' : '')}>
           <div className="group-name">
+            {typeof DetailsPopupL !== 'undefined' &&
             <div
               className={"checkbox" + ((checkAllModifier === 2) ? ' not-all' : '')}>
               <label>
@@ -144,12 +145,14 @@ class GroupLayers extends Component {
                    checked={this.state.ckeckAll} className={"check-all"}/>
                 <span></span>
               </label>
-            </div>
+            </div>}
+            {typeof DetailsPopupL !== 'undefined' &&
             <span className="name toggler" onClick={this.collapse.bind(this)}>
             {this.props.name}
               {this.state.collapsed &&
               <i className="icon-b icon-b-sortdown"></i>}
-          </span>
+          </span> || <span className="name toggler">
+              {this.props.name} </span>}
           </div>
           <div className="checkboxes collapsible">
             {Object.keys(layers).map(function (name, i) {
