@@ -162,7 +162,7 @@ class DetailsMap extends React.Component {
   render() {
     const item = popupResults[propertySectionName].data.items[0],
       map = this.props.map;
-    const DetailsPopupL = this.props.data.data.items[0]['landUse'].concat(this.props.data.data.items[0]['__extra__']['place']['raw']);
+    const DetailsPopupL = item['landUse'].concat(item['__extra__']['place']['raw']);
     const activeTab = this.state.activeTab;
     return(
       <div>
@@ -283,9 +283,8 @@ class LMap extends React.Component {
       // Render popup.
       function renderPopup(data, e) {
         const propertyData = popupResults[propertySectionName];
-        popupData['data'] = popupResults;
         newLeayer.unbindPopup();
-        popupData['data'] = data;
+        popupData['data'] = popupResults;
         popupData['fields'] = fieldsMapping;
         popupData['address'] = address;
         popupData['googleApiKey'] = googleApiKey;
