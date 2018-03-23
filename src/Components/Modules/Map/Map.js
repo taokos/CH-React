@@ -228,7 +228,7 @@ class LMap extends React.Component {
 
     fetch(process.env.REACT_APP_API + '/api/ui-api' + urlSettings + fieldsRequest + 'address=' + key)
     .then(results => results.json())
-    .then(data => this.propertyLayer(this.state.map, {data}))
+    .then(data => this.openPopup(false, this.state.map, 'property', {data}))
     .catch(function (e) {
       console.error(e);
     });
@@ -268,6 +268,11 @@ class LMap extends React.Component {
           }
         }
       });
+
+      if (typeof e === 'undefined') {
+        hide();
+        renderPopup(data);
+      }
 
       // Remove popup.
       function hide() {
@@ -311,7 +316,13 @@ class LMap extends React.Component {
           popupData['lng'] = e.latlng.lng;
           popupData['lat'] = e.latlng.lat;
         }
-        else if ('data' in propertyData && 'items' in propertyData.data && propertyData.data.items[0] && 'gisData' in propertyData.data.items[0] && 'geom' in data.data.items[0].gisData) {
+        else if (
+          'data' in propertyData &&
+          'items' in propertyData.data &&
+          propertyData.data.items[0] &&
+          'gisData' in propertyData.data.items[0] &&
+          'geom' in propertyData.data.items[0].gisData
+        ) {
           const lngLan = propertyData.data.items[0].gisData.geom.coordinates[0][0];
           popupData['lng'] = lngLan[0];
           popupData['lat'] = lngLan[1];
@@ -362,23 +373,26 @@ class LMap extends React.Component {
     this.map(that);
   }
 
-  map(that) {
-    const map = L.map('map');
-
-    this.setState({
-      map: map
-    });
-
-    function openPopup(e, map, type) {
-      popupResults = {};
-      let fieldsRequest = that.prepareFieldsRequest(propertySectionName);
+  openPopup(e, map, type, data) {
+    popupResults = {};
+    let fieldsRequest = this.prepareFieldsRequest(propertySectionName);
+    const that = this;
+    if (e) {
       fetch(process.env.REACT_APP_API + '/api/ui-api' + requestSettings[propertySectionName] + fieldsRequest + 'point_search={"geometry":"POINT (' + e.latlng.lng + ' ' + e.latlng.lat + ')"}&publicToken=' + process.env.REACT_APP_API_PUBLIC_TOKEN)
-        .then(results => results.json())
-        .then(data => popupResults[propertySectionName] = {data})
-        .then(data => loadAdditionalData(e, map, type))
-        .catch(function (e) {
-          console.error(e);
-        });
+      .then(results => results.json())
+      .then(data => setResult(data))
+      .catch(function (e) {
+        console.error(e);
+      });
+    }
+    else if (typeof data !== 'undefined') {
+      popupResults[propertySectionName] = data;
+      loadAdditionalData(e, map, type);
+    }
+
+    function setResult(data) {
+      popupResults[propertySectionName] = {data}
+      loadAdditionalData(e, map, type);
     }
 
     function loadAdditionalData(e, map, type) {
@@ -412,15 +426,24 @@ class LMap extends React.Component {
         Promise.all(fetches).then(data => that.propertyLayer(map, {data}, e, that, type));
       }
     }
+  }
+
+  map(that) {
+    const map = L.map('map');
+
+    this.setState({
+      map: map
+    });
+
 
     // Add property layer and open popup with property info.
     map.on('click', function(e) {
-      openPopup(e, this);
+      that.openPopup(e, this);
       e.target.closePopup();
     });
 
     map.on('contextmenu',function(e){
-      openPopup(e, this, 'details');
+      that.openPopup(e, this, 'details');
     });
 
     const baseUrl = process.env.NODE_ENV === 'development' ? process.env.REACT_APP_LOCAL_SETTINGS_URL : process.env.REACT_APP_SETTINGS_URL;

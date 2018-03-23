@@ -149,7 +149,7 @@ class LeftMenu extends Component {
                   </a>
                 </li>
                 <li>
-                  <a href={!this.isMapPage() ? siteUrl + this.map : process.env.REACT_APP_MAP_URL + this.doc} className={"map" + this.isActive('map')}>
+                  <a href={process.env.NODE_ENV === 'development' ? siteUrl + this.map : process.env.REACT_APP_MAP_URL + this.doc} className={"map" + this.isActive('map')}>
                     <i className="icon-b icon-b-ic-3-d-map-logo">
                     </i>
                     <span className="title">Map</span>
