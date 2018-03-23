@@ -14,7 +14,6 @@ export default class LayersCheckbox extends Component {
       added: added,
       layerData: props.layer
     };
-
     this.isToggleOn = false;
 
     // This binding is necessary to make `this` work in the callback
@@ -45,6 +44,12 @@ export default class LayersCheckbox extends Component {
         this.state.added.remove();
       }
       this.isToggleOn = false;
+    }
+    if ('DetailsMap' in window) {
+      window.DetailsMap.setState({changed:newState});
+    }
+    if ('MapPage' in window) {
+      window.MapPage.setState({changed:newState});
     }
   }
 

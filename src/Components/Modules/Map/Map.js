@@ -131,13 +131,16 @@ class DetailsMap extends React.Component {
     this.state = {
       activeLayers: {},
       settings:{},
-      activeTab: 'activated'
+      activeTab: 'activated',
+      changed:{}
     };
+
+    window.DetailsMap = this;
 
     let settings = {};
     settings[this.props.layer._leaflet_id] = this.props;
     if ('layer' in this.props) {
-      this.setState({settings:settings});
+      this.state['settings'] = settings;
     }
     this.showPropertyDetails = this.showPropertyDetails.bind(this);
   }
@@ -203,8 +206,9 @@ class LMap extends React.Component {
       baseLayers: {},
       mapData: {},
       layerExist: true,
-      layers: {}
+      changed:{},
     };
+    window.MapPage = this;
   }
 
   saveLayersSate(layers) {
@@ -285,12 +289,6 @@ class LMap extends React.Component {
         ReactDOM.render('', document.getElementById('popupWrapper'));
       }
 
-      function fixBounds(bounds) {
-        bounds._northEast.lat =  bounds._northEast.lat + 0.0005;
-        bounds._southWest.lat =  bounds._southWest.lat + 0.0005;
-        return bounds;
-      }
-
       // Render popup.
       function renderPopup(data, e) {
         const propertyData = popupResults[propertySectionName];
@@ -299,7 +297,7 @@ class LMap extends React.Component {
         popupData['fields'] = fieldsMapping;
         popupData['address'] = address;
         popupData['googleApiKey'] = googleApiKey;
-        map.fitBounds(fixBounds(newLeayer.getBounds()));
+        map.fitBounds(newLeayer.getBounds());
         if (e) {
           popupData['lng'] = e.latlng.lng;
           popupData['lat'] = e.latlng.lat;
@@ -344,9 +342,10 @@ class LMap extends React.Component {
 
       function renderDetailsPopup(data, e) {
         hide();
-        map.fitBounds(fixBounds(newLeayer.getBounds()));
+        map.fitBounds(newLeayer.getBounds());
+        const bounds = newLeayer.getBounds();
         newLeayer.addTo(map);
-        newLeayer.bindPopup('<div id="l-map-popup' + newLeayer['_leaflet_id'] + '"></div>');
+        newLeayer.bindPopup('<div id="l-map-popup' + newLeayer['_leaflet_id'] + '"></div>', { popupAnchor: bounds._northEast });
         newLeayer.on('popupopen', function (popup) {
           if (typeof that !== 'undefined' && 'props' in that && !_.isEmpty(e)) {
             ReactDOM.render(<DetailsMap
@@ -356,7 +355,8 @@ class LMap extends React.Component {
               map={map}
               renderPopup={renderPopup}
               saveLayersState={that.saveLayersSate}
-              {...that.props}/>, document.getElementById('l-map-popup' + newLeayer['_leaflet_id']));
+              {...that.props}/>, document.getElementById('l-map-popup' + newLeayer['_leaflet_id'])
+            );
           }
         });
         newLeayer.openPopup();
