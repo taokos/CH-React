@@ -4,10 +4,6 @@ import PopupBase from '../../../Elements/PopupBase.js';
 
 export default class CopyPopup extends Component {
 
-  constructor(props) {
-    super(props);
-  }
-
   copy(e, val) {
     copy(val, {message: 'sss'});
   }

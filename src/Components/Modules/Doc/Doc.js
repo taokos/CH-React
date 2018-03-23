@@ -187,7 +187,7 @@ class Doc extends Component {
       else if (child.text) {
         // Process image.
         if (child.li_attr && image.indexOf(child.li_attr.dataTag) !== -1) {
-          text.push('<img src="' + child.text + '"' + '>');
+          text.push('<img src="' + child.text + '">');
         }
         // Regular text.
         else {

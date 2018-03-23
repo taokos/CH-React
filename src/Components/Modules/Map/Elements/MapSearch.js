@@ -97,6 +97,8 @@ class MapSearch extends React.Component {
               this.list.children[cursor].click();
             }
             break;
+          default :
+            break;
         }
       }
     }

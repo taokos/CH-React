@@ -59,15 +59,13 @@ class StreetView extends React.Component {
   }
 }
 
-if (typeof React.PropTypes !== 'undefined') {
-  StreetView.defaultProps = {
-    streetViewPanoramaOptions: {
-      position: {lat: 0, lng: 0},
-      pov: {heading: 0, pitch: 0},
-      zoom: 1
-    }
-  };
-}
+StreetView.defaultProps = {
+  streetViewPanoramaOptions: {
+    position: {lat: 0, lng: 0},
+    pov: {heading: 0, pitch: 0},
+    zoom: 1
+  }
+};
 
 function mapScriptsToProps (props) {
   const googleMapsApiKey = props.apiKey;

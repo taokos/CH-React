@@ -1,4 +1,4 @@
-import React, {Fragment} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import L from 'leaflet';
 import Layers from './Elements/Layers.js';
@@ -19,7 +19,7 @@ const requestSettings = {
 
 const propertySectionName = 'Property Information';
 
-let address = '', googleApiKey = '', checkedLayers={}, popupResults = {}, allResults = {};
+let address = '', googleApiKey = '', checkedLayers={}, popupResults = {};
 
 const fieldsMapping = {
   'Property Information': [
@@ -167,17 +167,17 @@ class DetailsMap extends React.Component {
     return(
       <div>
         <div className="popup-header">
-          <h3 className="head-title" onClick={this.showPropertyDetails}>{typeof item.title === 'object' ? item.title[0] : item.title}<i class="icon-b icon-b-ic-shere"></i></h3>
+          <h3 className="head-title" onClick={this.showPropertyDetails}>{typeof item.title === 'object' ? item.title[0] : item.title}<i className="icon-b icon-b-ic-shere"></i></h3>
           <div className="ssl"><span>SSL:</span>{item.folioNumber}</div>
         </div>
         <div className="tabs">
-          <a href="#actived-layers" className={(activeTab == 'activated' ? ' active' : '')} onClick={(e) => this.switchTab(e, 'activated')}>Activated Layers</a>
-          <a href="#all-layers" className={(activeTab == 'all' ? ' active' : '')} onClick={(e) => this.switchTab(e, 'all')}>All Applicable Layers</a>
+          <a href="#actived-layers" className={(activeTab === 'activated' ? ' active' : '')} onClick={(e) => this.switchTab(e, 'activated')}>Activated Layers</a>
+          <a href="#all-layers" className={(activeTab === 'all' ? ' active' : '')} onClick={(e) => this.switchTab(e, 'all')}>All Applicable Layers</a>
         </div>
-        <div className={"list-active-layers" + (activeTab == 'activated' ? '' : ' hide')}>
+        <div className={"list-active-layers" + (activeTab === 'activated' ? '' : ' hide')}>
           <ActiveChecboxes />
         </div>
-        <div className={"list-layers" + (activeTab == 'all' ? '' : ' hide')}>
+        <div className={"list-layers" + (activeTab === 'all' ? '' : ' hide')}>
           <Layers
             map={map}
             {...this.props}
@@ -285,6 +285,12 @@ class LMap extends React.Component {
         ReactDOM.render('', document.getElementById('popupWrapper'));
       }
 
+      function fixBounds(bounds) {
+        bounds._northEast.lat =  bounds._northEast.lat + 0.0005;
+        bounds._southWest.lat =  bounds._southWest.lat + 0.0005;
+        return bounds;
+      }
+
       // Render popup.
       function renderPopup(data, e) {
         const propertyData = popupResults[propertySectionName];
@@ -293,14 +299,13 @@ class LMap extends React.Component {
         popupData['fields'] = fieldsMapping;
         popupData['address'] = address;
         popupData['googleApiKey'] = googleApiKey;
+        map.fitBounds(fixBounds(newLeayer.getBounds()));
         if (e) {
           popupData['lng'] = e.latlng.lng;
           popupData['lat'] = e.latlng.lat;
-          map.fitBounds(newLeayer.getBounds());
         }
         else if ('data' in propertyData && 'items' in propertyData.data && propertyData.data.items[0] && 'gisData' in propertyData.data.items[0] && 'geom' in propertyData.data.items[0].gisData) {
           const lngLan = propertyData.data.items[0].gisData.geom.coordinates[0][0];
-          map.fitBounds(newLeayer.getBounds());
           popupData['lng'] = lngLan[0];
           popupData['lat'] = lngLan[1];
         }
@@ -339,7 +344,7 @@ class LMap extends React.Component {
 
       function renderDetailsPopup(data, e) {
         hide();
-        map.fitBounds(newLeayer.getBounds());
+        map.fitBounds(fixBounds(newLeayer.getBounds()));
         newLeayer.addTo(map);
         newLeayer.bindPopup('<div id="l-map-popup' + newLeayer['_leaflet_id'] + '"></div>');
         newLeayer.on('popupopen', function (popup) {

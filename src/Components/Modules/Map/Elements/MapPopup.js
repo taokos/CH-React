@@ -51,7 +51,7 @@ class MapPopup extends React.Component {
 
     let cityAddress = '';
     popupData['address'].map(function(item){
-      cityAddress += ', ' + item;
+      return cityAddress += ', ' + item;
     });
 
     const values = this.props.popupData.data;

@@ -95,13 +95,13 @@ class LeftMenu extends Component {
 
   isActive(url) {
     if (process.env.NODE_ENV !== 'development') {
-      if (this.isMapPage() && url === 'map' || url === 'doc' && !this.isMapPage()) {
+      if ((this.isMapPage() && url === 'map') || (url === 'doc' && !this.isMapPage())) {
         return ' active';
       }
     }
     else {
       const pathname = history.location.pathname.split('/');
-      if (url === pathname[1] || url === 'doc' && pathname[1] !== 'map') {
+      if (url === pathname[1] || (url === 'doc' && pathname[1] !== 'map')) {
         return ' active';
       }
     }

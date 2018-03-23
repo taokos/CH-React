@@ -141,9 +141,9 @@ class SearchResults extends Component {
                 <div className="offset">
                   Results per page: <span className="current-limit">{limit}<i className="icon-b icon-b-sort-desc"></i></span>
                   <ul className="tools-popup">
-                    <li onClick={() => {this.limitChange(10)}} className={limit == 10 ? "active" : undefined}>10</li>
-                    <li onClick={() => {this.limitChange(25)}} className={limit == 25 ? "active" : undefined}>25</li>
-                    <li onClick={() => {this.limitChange(50)}} className={limit == 50 ? "active" : undefined}>50</li>
+                    <li onClick={() => {this.limitChange(10)}} className={limit === 10 ? "active" : undefined}>10</li>
+                    <li onClick={() => {this.limitChange(25)}} className={limit === 25 ? "active" : undefined}>25</li>
+                    <li onClick={() => {this.limitChange(50)}} className={limit === 50 ? "active" : undefined}>50</li>
                   </ul>
                 </div>
               </div>

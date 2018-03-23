@@ -125,13 +125,13 @@ class GroupLayers extends Component {
       let newLayers = {};
       for (const layer in layers) {
         const args = Object.values(layers[layer]);
-        if (DetailsPopupL.indexOf(parseInt(args[2])) !== -1) {
+        if (DetailsPopupL.indexOf(parseInt(args[2], 10)) !== -1) {
           newLayers[layer] = layers[layer];
         }
       }
       layers = newLayers;
     }
-    if (typeof DetailsPopupL === 'undefined' || 'Parcel Lines' in layers || typeof DetailsPopupL !== 'undefined' && Object.keys(layers).length > 0) {
+    if (typeof DetailsPopupL === 'undefined' || 'Parcel Lines' in layers || (typeof DetailsPopupL !== 'undefined' && Object.keys(layers).length > 0)) {
       return (
         <div
           className={"collapsible-group layers-group" + (this.state.collapsed ? ' collapsed' : '')}>
